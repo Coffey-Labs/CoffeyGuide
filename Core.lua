@@ -226,21 +226,81 @@ local function TabInfo(t)
   return a, b, c                                 -- name, icon, pointsSpent
 end
 
+local function TalentGroup()
+  if C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup then
+    local ok, g = pcall(C_SpecializationInfo.GetActiveSpecGroup); if ok and g then return g end
+  end
+  if GetActiveTalentGroup then
+    local ok, g = pcall(GetActiveTalentGroup); if ok and g then return g end
+  end
+  return 1
+end
+
+-- One talent: name, icon, tier, column, rank, maxRank. Newer clients (WoW Forever included) use
+-- C_SpecializationInfo.GetTalentInfo(query), which returns a table; older ones use the global
+-- GetTalentInfo(tab, index), which some builds return with a talent ID in front.
+local function TalentInfo(t, i, group)
+  if C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo then
+    local ok, x = pcall(C_SpecializationInfo.GetTalentInfo,
+      { specializationIndex = t, talentIndex = i, isInspect = false, isPet = false, groupIndex = group })
+    if ok and type(x) == "table" and x.name then
+      return x.name, x.icon, x.tier, x.column, x.rank, x.maxRank, "C_SpecializationInfo"
+    end
+  end
+  if GetTalentInfo then
+    local ok, a, b, c, d, e, f, g = pcall(GetTalentInfo, t, i)
+    if ok and type(a) == "string" then return a, b, c, d, e, f, "GetTalentInfo" end
+    if ok and type(a) == "number" and type(b) == "string" then return b, c, d, e, f, g, "GetTalentInfo(id)" end
+  end
+end
+
+local MAX_TALENTS = 40
+ns.talentSource = nil
+
 function ns.ScanTalents()
   local T = ns.talents
   wipe(T.byName); wipe(T.tabs); T.total = 0
-  if not GetNumTalentTabs then return end
-  for t = 1, GetNumTalentTabs() do
-    local name, icon, points = TabInfo(t)
+  local numTabs = GetNumTalentTabs and GetNumTalentTabs() or 3
+  local group = TalentGroup()
+  for t = 1, numTabs do
+    local ok, name, icon, points = pcall(TabInfo, t)
+    if not ok then name, icon, points = nil, nil, 0 end
     T.tabs[t] = { name = name, icon = icon, points = points or 0 }
     T.total = T.total + (points or 0)
-    for i = 1, (GetNumTalents(t) or 0) do
-      local tname, ticon, tier, column, rank, maxRank = GetTalentInfo(t, i)
+    local count = GetNumTalents and GetNumTalents(t) or MAX_TALENTS
+    if not count or count == 0 then count = MAX_TALENTS end
+    for i = 1, count do
+      local tname, ticon, tier, column, rank, maxRank, source = TalentInfo(t, i, group)
       if tname then
+        ns.talentSource = source
         T.byName[tname] = { tab = t, index = i, icon = ticon, rank = rank or 0, maxRank = maxRank or 1,
                             tier = tier, column = column, tabName = name }
       end
     end
+  end
+end
+
+-- /fg talentdebug: what the client's talent API returns, for bug reports.
+function ns.TalentDebug()
+  ns.ScanTalents()
+  local n = 0; for _ in pairs(ns.talents.byName) do n = n + 1 end
+  ns.Print(("talents found: %d, points spent: %d, source: %s"):format(n, ns.talents.total, tostring(ns.talentSource)))
+  ns.Print(("API: GetTalentInfo=%s, C_SpecializationInfo.GetTalentInfo=%s, GetNumTalents=%s, GetNumTalentTabs=%s"):format(
+    tostring(GetTalentInfo ~= nil), tostring(C_SpecializationInfo ~= nil and C_SpecializationInfo.GetTalentInfo ~= nil),
+    tostring(GetNumTalents ~= nil), tostring(GetNumTalentTabs ~= nil)))
+  for t, tab in ipairs(ns.talents.tabs) do ns.Print(("tab %d: %s (%d points)"):format(t, tostring(tab.name), tab.points)) end
+  if GetTalentInfo then
+    local ok, a, b, c, d, e, f = pcall(GetTalentInfo, 1, 1)
+    ns.Print("GetTalentInfo(1,1) -> " .. (ok and table.concat({ tostring(a), tostring(b), tostring(c), tostring(d), tostring(e), tostring(f) }, ", ") or ("error: " .. tostring(a))))
+  end
+  local build = ns.GetActiveBuild()
+  if build and build.talents then
+    local missing = {}
+    for _, p in pairs(build.talents) do if not ns.talents.byName[p[1]] then missing[p[1]] = true end end
+    local list = {}; for k in pairs(missing) do list[#list + 1] = k end
+    table.sort(list)
+    ns.Print(("build %s: %d talent names not in your tree%s"):format(build.name or build.key or "?", #list,
+      #list > 0 and (": " .. table.concat(list, ", ", 1, math.min(#list, 8))) or ""))
   end
 end
 
@@ -473,6 +533,7 @@ SlashCmdList.FOREVERGUIDE = function(msg)
     Print("progress reset."); ns.Fire("Refresh")
   elseif msg == "resetpos" then
     ns.char.pos = nil; ns.Fire("ResetPosition")
+  elseif msg == "talentdebug" then ns.TalentDebug()
   elseif msg == "support" or msg == "donate" then
     Print("ForeverGuide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
   else
