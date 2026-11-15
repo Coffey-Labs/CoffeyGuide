@@ -266,6 +266,27 @@ if tstep and ns.PlanFor(tstep) and #ns.PlanFor(tstep) >= 4 then
   local plan = ns.PlanFor(tstep); ns.MarkSub(tstep, plan[4], true); show("go marked")
   print("tirisfal step state:", ns.StepState(tstep))
 end
+-- Flight path, hearthstone and travel sub-steps tick off by themselves.
+local sp; for _, st in ipairs(ns.route) do if st.id == "h_silverpine" then sp = st end end
+if sp and ns.PlanFor(sp) then
+  local plan = ns.PlanFor(sp)
+  local fp, hs = plan[1], plan[2]
+  ns.SetView(nil); for i, st in ipairs(ns.route) do if st == sp then ns.SetView(i) end end
+  print("silverpine fp/hs before:", ns.SubDone(sp, fp), ns.SubDone(sp, hs))
+  function GetBindLocation() return "The Sepulcher" end
+  fire("HEARTHSTONE_BOUND")
+  local nodes = { { "Undercity, Tirisfal", "REACHABLE" }, { "The Sepulcher, Silverpine Forest", "CURRENT" } }
+  function NumTaxiNodes() return #nodes end
+  function TaxiNodeName(i) return nodes[i][1] end
+  function TaxiNodeGetType(i) return nodes[i][2] end
+  fire("TAXIMAP_OPENED")
+  print("silverpine fp/hs after:", ns.SubDone(sp, fp), ns.SubDone(sp, hs))
+  function GetBindLocation() return "Tarren Mill" end
+  print("silverpine hs after rebinding elsewhere:", ns.SubDone(sp, hs))
+  local tl = ns.PlanFor(tstep)
+  print("tirisfal last go (next step started):", ns.SubDone(tstep, tl[#tl]))
+  ns.SetView(nil)
+end
 SlashCmdList.COFFEYGUIDE("quests")
 ns.ShowLink(ns.WEBSITE); print("website:", ns.WEBSITE)
 print("HARNESS_OK")
