@@ -31,9 +31,12 @@ settings or frames.
 
 ## Install
 
-Copy this folder into
-`World of Warcraft/_forever_/Interface/AddOns/ForeverGuide`, then restart the game or
-type `/reload`.
+Download `ForeverGuide-<version>.zip` from
+[Releases](https://git.coffeylabs.org/coffey-labs/ForeverGuide/releases) and unzip it into
+`World of Warcraft/_forever_/Interface/AddOns/`, so the addon ends up in
+`AddOns/ForeverGuide`. Then restart the game or type `/reload`.
+
+Cloning this repository straight into `AddOns/` works too.
 
 ## Commands
 
