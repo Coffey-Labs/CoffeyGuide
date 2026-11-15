@@ -220,15 +220,11 @@ end
 ---------------------------------------------------------------------------
 -- Talents
 ---------------------------------------------------------------------------
-local function TabInfo(t)
-  local a, b, c, d, e = GetTalentTabInfo(t)
-  if type(a) == "number" then return b, d, e end -- id, name, description, icon, pointsSpent
-  return a, b, c                                 -- name, icon, pointsSpent
-end
+local CSI = C_SpecializationInfo
 
 local function TalentGroup()
-  if C_SpecializationInfo and C_SpecializationInfo.GetActiveSpecGroup then
-    local ok, g = pcall(C_SpecializationInfo.GetActiveSpecGroup); if ok and g then return g end
+  if CSI and CSI.GetActiveSpecGroup then
+    local ok, g = pcall(CSI.GetActiveSpecGroup); if ok and g then return g end
   end
   if GetActiveTalentGroup then
     local ok, g = pcall(GetActiveTalentGroup); if ok and g then return g end
@@ -236,79 +232,168 @@ local function TalentGroup()
   return 1
 end
 
--- One talent: name, icon, tier, column, rank, maxRank. Newer clients (WoW Forever included) use
--- C_SpecializationInfo.GetTalentInfo(query), which returns a table; older ones use the global
--- GetTalentInfo(tab, index), which some builds return with a talent ID in front.
-local function TalentInfo(t, i, group)
-  if C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo then
-    local ok, x = pcall(C_SpecializationInfo.GetTalentInfo,
-      { specializationIndex = t, talentIndex = i, isInspect = false, isPet = false, groupIndex = group })
-    if ok and type(x) == "table" and x.name then
-      return x.name, x.icon, x.tier, x.column, x.rank, x.maxRank, "C_SpecializationInfo"
-    end
+-- Tree name, icon and points spent. Older clients have GetTalentTabInfo; WoW Forever only has
+-- C_SpecializationInfo.GetSpecializationInfo (id, name, description, icon, role, primaryStat, pointsSpent, ...).
+local function TabInfo(t, group)
+  if GetTalentTabInfo then
+    local ok, a, b, c, d, e = pcall(GetTalentTabInfo, t)
+    if ok and type(a) == "number" then return b, d, e end -- id, name, description, icon, pointsSpent
+    if ok and a then return a, b, c end                    -- name, icon, pointsSpent
   end
-  if GetTalentInfo then
-    local ok, a, b, c, d, e, f, g = pcall(GetTalentInfo, t, i)
-    if ok and type(a) == "string" then return a, b, c, d, e, f, "GetTalentInfo" end
-    if ok and type(a) == "number" and type(b) == "string" then return b, c, d, e, f, g, "GetTalentInfo(id)" end
+  if CSI and CSI.GetSpecializationInfo then
+    local ok, _, name, _, icon, _, _, points = pcall(CSI.GetSpecializationInfo, t, false, false, nil, nil, group)
+    if not (ok and name) then ok, _, name, _, icon, _, _, points = pcall(CSI.GetSpecializationInfo, t) end
+    if ok and name then return name, icon, type(points) == "number" and points or nil end
   end
 end
 
-local MAX_TALENTS = 40
+local function NumTabs()
+  if GetNumTalentTabs then local ok, n = pcall(GetNumTalentTabs); if ok and n and n > 0 then return n end end
+  if GetNumSpecializations then local ok, n = pcall(GetNumSpecializations); if ok and n and n > 0 then return n end end
+  return 3
+end
+
+local function Add(T, source, t, index, name, icon, tier, column, rank, maxRank)
+  if type(name) ~= "string" or name == "" or T.byName[name] then return end
+  T.byName[name] = { tab = t, index = index, icon = icon, rank = rank or 0, maxRank = maxRank or 1,
+                     tier = tier, column = column, tabName = T.tabs[t] and T.tabs[t].name }
+  ns.talentSource = source
+end
+
+-- 1. By talent index: the global GetTalentInfo(tab, i), or C_SpecializationInfo with talentIndex.
+local indexQueryFails = false
+local function ScanByIndex(T, numTabs, group)
+  for t = 1, numTabs do
+    local count = GetNumTalents and select(2, pcall(GetNumTalents, t)) or 0
+    if type(count) ~= "number" or count == 0 then count = 40 end
+    for i = 1, count do
+      if GetTalentInfo then
+        local ok, a, b, c, d, e, f, g = pcall(GetTalentInfo, t, i)
+        if ok and type(a) == "string" then Add(T, "GetTalentInfo", t, i, a, b, c, d, e, f)
+        elseif ok and type(a) == "number" and type(b) == "string" then Add(T, "GetTalentInfo(id)", t, i, b, c, d, e, f, g) end
+      elseif CSI and CSI.GetTalentInfo and not indexQueryFails then
+        local ok, x = pcall(CSI.GetTalentInfo, { specializationIndex = t, talentIndex = i, isInspect = false, isPet = false, groupIndex = group })
+        if not ok then indexQueryFails = true
+        elseif type(x) == "table" then Add(T, "C_SpecializationInfo(index)", t, i, x.name, x.icon, x.tier, x.column, x.rank, x.maxRank) end
+      end
+    end
+  end
+end
+
+-- 2. By tier and column: C_SpecializationInfo.GetTalentInfo{ tier, column, ... } (WoW Forever asks for a tier).
+local function ScanByTier(T, numTabs, group)
+  if not (CSI and CSI.GetTalentInfo) then return end
+  for t = 1, numTabs do
+    local index = 0
+    for tier = 1, 11 do
+      for column = 1, 4 do
+        local ok, x = pcall(CSI.GetTalentInfo, { specializationIndex = t, tier = tier, column = column,
+                                                  groupIndex = group, isInspect = false, isPet = false })
+        if ok and type(x) == "table" and x.name then
+          index = index + 1
+          Add(T, "C_SpecializationInfo(tier)", t, x.talentIndex or x.index or index, x.name, x.icon or x.iconTexture,
+              x.tier or tier, x.column or column, x.rank or x.currentRank, x.maxRank or x.maxRanks)
+        end
+      end
+    end
+  end
+end
+
+-- 3. Modern trait trees: C_ClassTalents / C_Traits.
+local function ScanByTraits(T)
+  if not (C_ClassTalents and C_Traits and C_ClassTalents.GetActiveConfigID) then return end
+  local ok, config = pcall(C_ClassTalents.GetActiveConfigID)
+  if not ok or not config then return end
+  local okc, info = pcall(C_Traits.GetConfigInfo, config)
+  if not okc or type(info) ~= "table" or not info.treeIDs then return end
+  local index = 0
+  for _, tree in ipairs(info.treeIDs) do
+    local okn, nodes = pcall(C_Traits.GetTreeNodes, tree)
+    for _, node in ipairs(okn and nodes or {}) do
+      local okI, n = pcall(C_Traits.GetNodeInfo, config, node)
+      if okI and type(n) == "table" and (n.isVisible ~= false) then
+        local entry = (n.activeEntry and n.activeEntry.entryID) or (n.entryIDs and n.entryIDs[1])
+        local okE, e = pcall(C_Traits.GetEntryInfo, config, entry)
+        local okD, d = pcall(C_Traits.GetDefinitionInfo, okE and e and e.definitionID)
+        if okD and type(d) == "table" then
+          local name = d.overrideName
+          if (not name or name == "") and d.spellID then
+            name = (C_Spell and C_Spell.GetSpellName and C_Spell.GetSpellName(d.spellID)) or (GetSpellInfo and GetSpellInfo(d.spellID))
+          end
+          local icon = d.overrideIcon or (d.spellID and C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(d.spellID))
+          index = index + 1
+          Add(T, "C_Traits", 1, index, name, icon, nil, nil, n.currentRank or n.activeRank, n.maxRanks)
+        end
+      end
+    end
+  end
+end
+
 ns.talentSource = nil
 
 function ns.ScanTalents()
   local T = ns.talents
   wipe(T.byName); wipe(T.tabs); T.total = 0
-  local numTabs = GetNumTalentTabs and GetNumTalentTabs() or 3
-  local group = TalentGroup()
+  ns.talentSource = nil
+  local numTabs, group = NumTabs(), TalentGroup()
+  local pointsKnown = false
   for t = 1, numTabs do
-    local ok, name, icon, points = pcall(TabInfo, t)
-    if not ok then name, icon, points = nil, nil, 0 end
+    local ok, name, icon, points = pcall(TabInfo, t, group)
+    if not ok then name, icon, points = nil, nil, nil end
+    if points then pointsKnown = true end
     T.tabs[t] = { name = name, icon = icon, points = points or 0 }
     T.total = T.total + (points or 0)
-    local count = GetNumTalents and GetNumTalents(t) or MAX_TALENTS
-    if not count or count == 0 then count = MAX_TALENTS end
-    for i = 1, count do
-      local tname, ticon, tier, column, rank, maxRank, source = TalentInfo(t, i, group)
-      if tname then
-        ns.talentSource = source
-        T.byName[tname] = { tab = t, index = i, icon = ticon, rank = rank or 0, maxRank = maxRank or 1,
-                            tier = tier, column = column, tabName = name }
-      end
+  end
+  ScanByIndex(T, numTabs, group)
+  if not next(T.byName) then ScanByTier(T, numTabs, group) end
+  if not next(T.byName) then ScanByTraits(T) end
+  -- No per-tree totals from the client: add up the ranks instead.
+  if not pointsKnown then
+    T.total = 0
+    for _, info in pairs(T.byName) do
+      T.total = T.total + (info.rank or 0)
+      local tab = T.tabs[info.tab]
+      if tab then tab.points = tab.points + (info.rank or 0) end
     end
   end
   T.scannedAt = GetTime and GetTime() or 0
-  -- Short record of what the client returned, kept in saved variables for troubleshooting.
-  if ns.char then
-    local n = 0; for _ in pairs(T.byName) do n = n + 1 end
-    local tabs = {}
-    for t, tab in ipairs(T.tabs) do tabs[t] = tostring(tab.name) .. ":" .. tostring(tab.points) end
-    local sample
-    if GetTalentInfo then
-      local ok, a, b, c, d, e, f = pcall(GetTalentInfo, 1, 1)
-      sample = ok and table.concat({ tostring(a), tostring(b), tostring(c), tostring(d), tostring(e), tostring(f) }, ", ") or ("error: " .. tostring(a))
-    end
-    local newSample
-    if C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo then
-      local ok, x = pcall(C_SpecializationInfo.GetTalentInfo,
-        { specializationIndex = 1, talentIndex = 1, isInspect = false, isPet = false, groupIndex = group })
-      if not ok then newSample = "error: " .. tostring(x)
-      elseif type(x) ~= "table" then newSample = tostring(x)
-      else
-        local keys = {}
-        for k, v in pairs(x) do keys[#keys + 1] = tostring(k) .. "=" .. tostring(v) end
-        table.sort(keys); newSample = table.concat(keys, ", ")
-      end
-    end
-    ns.char.talentDiag = {
-      level = ns.player and ns.player.level, found = n, spent = T.total, source = ns.talentSource,
-      numTabs = numTabs, group = group, tabs = table.concat(tabs, " | "),
-      hasGlobal = GetTalentInfo ~= nil, hasNew = C_SpecializationInfo ~= nil and C_SpecializationInfo.GetTalentInfo ~= nil,
-      hasNumTalents = GetNumTalents ~= nil, numTalents1 = GetNumTalents and select(2, pcall(GetNumTalents, 1)) or nil,
-      globalSample = sample, newSample = newSample,
-    }
+  if ns.char then ns.char.talentDiag = ns.TalentDiag(numTabs, group) end
+end
+
+-- Short record of what the client returned, kept in saved variables for troubleshooting.
+local function Keys(tbl)
+  if type(tbl) ~= "table" then return tostring(tbl) end
+  local k = {}; for name in pairs(tbl) do k[#k + 1] = tostring(name) end
+  table.sort(k); return table.concat(k, ",")
+end
+local function Dump(x)
+  if type(x) ~= "table" then return tostring(x) end
+  local k = {}; for a, b in pairs(x) do k[#k + 1] = tostring(a) .. "=" .. tostring(b) end
+  table.sort(k); return table.concat(k, ", ")
+end
+function ns.TalentDiag(numTabs, group)
+  local T = ns.talents
+  local n = 0; for _ in pairs(T.byName) do n = n + 1 end
+  local tabs = {}
+  for t, tab in ipairs(T.tabs) do tabs[t] = tostring(tab.name) .. ":" .. tostring(tab.points) end
+  local d = { level = ns.player and ns.player.level, found = n, spent = T.total, source = ns.talentSource,
+              numTabs = numTabs, group = group, tabs = table.concat(tabs, " | "),
+              CSI = CSI and Keys(CSI), C_ClassTalents = C_ClassTalents and Keys(C_ClassTalents) or nil,
+              C_Traits = C_Traits and Keys(C_Traits) or nil }
+  if n == 0 and CSI and CSI.GetTalentInfo then
+    local ok, x = pcall(CSI.GetTalentInfo, { specializationIndex = 1, tier = 1, column = 1, groupIndex = group, isInspect = false, isPet = false })
+    d.tierSample = ok and Dump(x) or ("error: " .. tostring(x))
+    ok, x = pcall(CSI.GetTalentInfo, { tier = 1, column = 1, groupIndex = group, isInspect = false })
+    d.tierSampleNoSpec = ok and Dump(x) or ("error: " .. tostring(x))
   end
+  if CSI and CSI.GetSpecializationInfo then
+    local ok, a, b, c, e, f, g, h = pcall(CSI.GetSpecializationInfo, 1)
+    d.specInfo1 = ok and table.concat({ tostring(a), tostring(b), tostring(e), tostring(f), tostring(g), tostring(h) }, ", ") or ("error: " .. tostring(a))
+  end
+  if C_ClassTalents and C_ClassTalents.GetActiveConfigID then
+    local ok, c = pcall(C_ClassTalents.GetActiveConfigID); d.traitConfig = ok and tostring(c) or "error"
+  end
+  return d
 end
 
 -- Rescan when the talent list is empty (talent data can arrive after login). Throttled.
