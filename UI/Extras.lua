@@ -152,6 +152,7 @@ ns.On("Login", function()
       tt:AddLine("Left-click: full guide", 0.6, 0.6, 0.6)
       tt:AddLine("Right-click: show/hide tracker", 0.6, 0.6, 0.6)
       tt:AddLine("by Coffey Labs LLC - coffeylabs.org", 0.4, 0.73, 1)
+      tt:AddLine("Support us: coffeylabs.org/support (/fg support)", 0.4, 0.73, 1)
     end,
   })
   DBIcon:Register("ForeverGuide", obj, ns.db.minimap)

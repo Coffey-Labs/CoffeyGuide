@@ -515,10 +515,14 @@ local function BuildSettings()
   local pos = UI.Button(settingsFrame, "Reset tracker position", 170, function() SlashCmdList.FOREVERGUIDE("resetpos") end)
   pos:SetPoint("LEFT", reset, "RIGHT", 8, 0)
   site:SetPoint("LEFT", pos, "RIGHT", 8, 0)
+  y = y + 30
+  local support = UI.Button(settingsFrame, "Support Coffey Labs", 170, function() ns.ShowLink(ns.SUPPORT) end)
+  support:SetPoint("TOPLEFT", 0, -y)
+  UI.Tooltip(support, "Support Coffey Labs", "ForeverGuide is free. Click to copy the link to our funding options (" .. ns.SUPPORT .. ").")
   y = y + 36
   local info = UI.Text(settingsFrame, "GameFontDisableSmall")
   info:SetPoint("TOPLEFT", 0, -y); info:SetWidth(520)
-  info:SetText("ForeverGuide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /fg (toggle tracker), /fg guide, /fg quests, /fg talents, /fg spec, /fg gear, /fg prof, /fg gold, /fg dungeons, /fg sync, /fg wp, /fg next, /fg prev, /fg reset.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
+  info:SetText("ForeverGuide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /fg (toggle tracker), /fg guide, /fg quests, /fg talents, /fg spec, /fg gear, /fg prof, /fg gold, /fg dungeons, /fg sync, /fg wp, /fg next, /fg prev, /fg reset, /fg support.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
 end
 
 ---------------------------------------------------------------------------
