@@ -98,6 +98,17 @@ function GetNumTalentTabs() return #tabs end
 function GetTalentTabInfo(t) return 100 + t, tabs[t], "", 1, 3 end
 function GetNumTalents(t) return #(talentsByTab[t] or {}) end
 function GetTalentInfo(t, i) local x = talentsByTab[t][i]; return x[1], 1, 1, 1, x[2], x[3] end
+-- TALENT_API=new: only C_SpecializationInfo.GetTalentInfo (table); TALENT_API=id: talent ID first.
+if os.getenv("TALENT_API") == "new" then
+  GetTalentInfo = nil
+  C_SpecializationInfo = C_SpecializationInfo or {}
+  C_SpecializationInfo.GetTalentInfo = function(q)
+    local x = talentsByTab[q.specializationIndex] and talentsByTab[q.specializationIndex][q.talentIndex]
+    if x then return { name = x[1], icon = 1, tier = 1, column = 1, rank = x[2], maxRank = x[3], talentID = 7 } end
+  end
+elseif os.getenv("TALENT_API") == "id" then
+  function GetTalentInfo(t, i) local x = talentsByTab[t][i]; return 7, x[1], 1, 1, 1, x[2], x[3] end
+end
 function GetNumSkillLines() return 2 end
 function GetSkillLineInfo(i)
   if i == 1 then return "Professions", true end
@@ -166,6 +177,7 @@ local b = ns.GetActiveBuild()
 print("build:", b and b.name, "spec:", ns.ActiveSpec())
 local L, plan = ns.PendingTalent()
 print("pending talent:", L, plan and ns.TalentText(plan))
+ns.TalentDebug()
 
 for _, tab in ipairs({ "quests", "route", "talents", "spec", "gear", "professions", "extras", "dungeons", "settings" }) do
   SlashCmdList.FOREVERGUIDE(tab == "route" and "guide" or tab)
