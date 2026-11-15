@@ -551,7 +551,7 @@ local function Render()
 end
 
 local function Create()
-  g = UI.Panel("ForeverGuideWindow", UIParent, 760, 540)
+  g = UI.Panel("ForeverGuideWindow", UIParent, 760, 580)
   g:SetPoint("CENTER")
   g:SetFrameStrata("HIGH")
   g:SetClampedToScreen(true)
@@ -583,7 +583,7 @@ local function Create()
   for i, t in ipairs(TABS) do
     local b = CreateFrame("Button", nil, g)
     b:SetSize(150, 30)
-    b:SetPoint("TOPLEFT", 10, -48 - (i - 1) * 32)
+    b:SetPoint("TOPLEFT", 10, -56 - (i - 1) * 32)
     b.bg = b:CreateTexture(nil, "BACKGROUND"); b.bg:SetAllPoints()
     b:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
     b.icon = UI.Icon(b, 24, t.icon); b.icon:SetPoint("LEFT", 4, 0)
@@ -593,13 +593,19 @@ local function Create()
     g.tabButtons[i] = b
   end
 
+  -- Header divider: the title bar keeps its own strip above the tabs and content.
+  local headerLine = g:CreateTexture(nil, "ARTWORK")
+  headerLine:SetColorTexture(0.55, 0.45, 0.25, 0.6)
+  headerLine:SetPoint("TOPLEFT", g, "TOPLEFT", 10, -48); headerLine:SetPoint("TOPRIGHT", g, "TOPRIGHT", -10, -48)
+  headerLine:SetHeight(1)
+
   -- Content area.
   g.content = CreateFrame("Frame", nil, g)
-  g.content:SetPoint("TOPLEFT", 172, -14)
+  g.content:SetPoint("TOPLEFT", 172, -56)
   g.content:SetPoint("BOTTOMRIGHT", -12, 12)
   local sep = g:CreateTexture(nil, "ARTWORK")
   sep:SetColorTexture(0.55, 0.45, 0.25, 0.6)
-  sep:SetPoint("TOPLEFT", g, "TOPLEFT", 166, -44); sep:SetPoint("BOTTOMLEFT", g, "BOTTOMLEFT", 166, 12); sep:SetWidth(1)
+  sep:SetPoint("TOPLEFT", g, "TOPLEFT", 166, -52); sep:SetPoint("BOTTOMLEFT", g, "BOTTOMLEFT", 166, 12); sep:SetWidth(1)
 
   g.title = UI.Text(g.content, "GameFontNormalLarge")
   g.title:SetPoint("TOPLEFT", 0, 0); g.title:SetWidth(540)
