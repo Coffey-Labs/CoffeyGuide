@@ -109,6 +109,39 @@ if os.getenv("TALENT_API") == "new" then
 elseif os.getenv("TALENT_API") == "id" then
   function GetTalentInfo(t, i) local x = talentsByTab[t][i]; return 7, x[1], 1, 1, 1, x[2], x[3] end
 end
+-- TALENT_API=tier: WoW Forever style. No global talent functions; C_SpecializationInfo.GetTalentInfo
+-- needs a tier and column; tree names come from C_SpecializationInfo.GetSpecializationInfo.
+-- TALENT_API=traits: only C_ClassTalents / C_Traits.
+local mode = os.getenv("TALENT_API")
+if mode == "tier" or mode == "traits" then
+  local byTab = talentsByTab
+  GetTalentInfo, GetNumTalents, GetTalentTabInfo, GetNumTalentTabs = nil, nil, nil, nil
+  C_SpecializationInfo = C_SpecializationInfo or {}
+  C_SpecializationInfo.GetSpecializationInfo = function(t) return 100 + t, tabs[t], "", 1, "DAMAGER", 1 end
+  if mode == "tier" then
+    C_SpecializationInfo.GetTalentInfo = function(q)
+      if not q.tier then error("C_SpecializationInfo.GetTalent: query.tier must be specified.") end
+      local i = (q.tier - 1) * 4 + q.column
+      local x = byTab[q.specializationIndex] and byTab[q.specializationIndex][i]
+      if x then return { name = x[1], icon = 1, tier = q.tier, column = q.column, rank = x[2], maxRank = x[3], talentID = 7 } end
+    end
+  else
+    C_SpecializationInfo.GetTalentInfo = nil
+    local nodes, defs = {}, {}
+    C_ClassTalents = { GetActiveConfigID = function() return 5 end }
+    C_Traits = {
+      GetConfigInfo = function() return { treeIDs = { 1 } } end,
+      GetTreeNodes = function()
+        wipe(nodes); wipe(defs)
+        for _, list in ipairs(byTab) do for _, x in ipairs(list) do nodes[#nodes + 1] = #nodes + 1; defs[#nodes] = x end end
+        return nodes
+      end,
+      GetNodeInfo = function(_, n) return { isVisible = true, entryIDs = { n }, currentRank = defs[n][2], maxRanks = defs[n][3] } end,
+      GetEntryInfo = function(_, e) return { definitionID = e } end,
+      GetDefinitionInfo = function(d) return { overrideName = defs[d][1] } end,
+    }
+  end
+end
 -- TALENT_LATE=1: talent data is empty until after login (as on a slow client).
 if os.getenv("TALENT_LATE") then
   local gti, gnt = GetTalentInfo, GetNumTalents
@@ -190,6 +223,7 @@ print("build:", b and b.name, "spec:", ns.ActiveSpec())
 local L, plan = ns.PendingTalent()
 print("pending talent:", L, plan and ns.TalentText(plan))
 ns.TalentDebug()
+if os.getenv("TALENT_API") then for k, v in pairs(ns.char.talentDiag) do print("diag", k, v) end end
 
 for _, tab in ipairs({ "quests", "route", "talents", "spec", "gear", "professions", "extras", "dungeons", "settings" }) do
   SlashCmdList.FOREVERGUIDE(tab == "route" and "guide" or tab)
