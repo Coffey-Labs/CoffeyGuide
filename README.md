@@ -1,0 +1,71 @@
+# ForeverGuide
+
+A free, standalone leveling and gear guide for **World of Warcraft: Forever**, by
+[Coffey Labs LLC](https://coffeylabs.org).
+
+It works out your race, class, spec and professions on its own, then shows the next
+thing to do: the zone route from 1 to 60 for both factions and every race, including
+Skyborne, plus quest-by-quest steps for the zones that have them.
+
+## Features
+
+- **Route 1-60** for Horde and Alliance, every starting zone, with optional dungeon
+  steps, class quests and class mounts.
+- **Quest-by-quest plans**: accept, kill, collect and turn-in steps with map
+  waypoints, checked against your quest log and completed-quest history.
+- **Tracker** panel with the current step, zone progress, live objectives and the next
+  talent point.
+- **Talents**: two or three leveling builds per class, detected from the points you
+  have spent, with the next talent highlighted in the talent window.
+- **Spec guides** for all 27 specs.
+- **Gear**: an upgrade score in item tooltips, a bag-upgrade popup, quest-reward
+  advice, and level 20/30/40/50 and pre-raid best-in-slot lists.
+- **Professions**: a leveling guide for each profession you have learned.
+- **Gold and extras**: gold-making tips, mounts, attunements and dungeon notes.
+- Optional quality-of-life settings (auto accept, auto turn-in, sell gray items,
+  auto repair). All are off by default; hold Shift to bypass them.
+
+ForeverGuide needs no other addons. When TomTom, Questie or ForeverDungeonJournal are
+installed it uses them for waypoints and NPC locations, and never changes their
+settings or frames.
+
+## Install
+
+Copy this folder into
+`World of Warcraft/_forever_/Interface/AddOns/ForeverGuide`, then restart the game or
+type `/reload`.
+
+## Commands
+
+| Command | Opens |
+|---|---|
+| `/fg` | The full guide window |
+| `/fg quests` | Quest log tab |
+| `/fg talents`, `/fg spec`, `/fg gear`, `/fg prof` | Those tabs |
+| `/fg gold`, `/fg dungeons`, `/fg settings` | Those tabs |
+| `/fg next`, `/fg prev` | Move between route steps |
+| `/fg wp` | Set a waypoint for the current step |
+| `/fg sync` | Re-read completed quests |
+| `/fg resetpos` | Reset window positions |
+
+The minimap button and the addon compartment open the guide (left-click) or toggle
+the tracker (right-click).
+
+## Development
+
+`tools/harness.lua` loads the addon against a mock game API and runs the main flows:
+
+    lua5.1 tools/harness.lua . Data Undead Scourge PALADIN Horde 12
+
+Set `HISTORY=1` to start with class quests already completed.
+`tools/validate_plans.lua` checks a quest-plan data file:
+
+    lua5.1 tools/validate_plans.lua Data/plans_horde_10_26.lua h_tirisfal_late,h_silverpine
+
+## Credits
+
+Bundled libraries: LibStub, CallbackHandler-1.0, HereBeDragons-2.0, LibDataBroker-1.1
+and LibDBIcon-1.0, each under its own license. Route, quest and gear data were compiled
+from public WoW Forever guides and databases.
+
+Copyright (c) 2026 Coffey Labs LLC.
