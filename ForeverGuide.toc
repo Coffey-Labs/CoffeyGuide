@@ -5,6 +5,7 @@
 ## Author: Coffey Labs LLC
 ## X-Website: https://coffeylabs.org
 ## X-Copyright: Copyright (c) 2026 Coffey Labs LLC
+## X-License: MIT
 ## IconTexture: Interface\Icons\INV_Misc_Book_09
 ## SavedVariables: ForeverGuideDB
 ## SavedVariablesPerCharacter: ForeverGuideCharDB
