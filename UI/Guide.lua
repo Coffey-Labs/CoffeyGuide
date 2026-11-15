@@ -177,6 +177,7 @@ function render.questlog(list)
 end
 
 function render.talents(list)
+  ns.EnsureTalents()
   local builds = ns.GetBuilds()
   local build, auto = ns.GetActiveBuild()
   local opts = { { label = "Auto-detect", value = "__auto" } }

@@ -51,7 +51,7 @@ local function SetupTalentHook()
   glow.label:SetText("next")
   glow:Hide()
 
-  f:HookScript("OnShow", function() C_Timer.After(0, UpdateTalentGlow) end)
+  f:HookScript("OnShow", function() ns.EnsureTalents(); C_Timer.After(0, UpdateTalentGlow) end)
   for _, fn in ipairs({ "PlayerTalentFrame_Update", "TalentFrame_Update", "PlayerTalentFrame_UpdateTalents" }) do
     if type(_G[fn]) == "function" then hooksecurefunc(fn, function() C_Timer.After(0, UpdateTalentGlow) end) end
   end

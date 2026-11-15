@@ -278,6 +278,45 @@ function ns.ScanTalents()
       end
     end
   end
+  T.scannedAt = GetTime and GetTime() or 0
+  -- Short record of what the client returned, kept in saved variables for troubleshooting.
+  if ns.char then
+    local n = 0; for _ in pairs(T.byName) do n = n + 1 end
+    local tabs = {}
+    for t, tab in ipairs(T.tabs) do tabs[t] = tostring(tab.name) .. ":" .. tostring(tab.points) end
+    local sample
+    if GetTalentInfo then
+      local ok, a, b, c, d, e, f = pcall(GetTalentInfo, 1, 1)
+      sample = ok and table.concat({ tostring(a), tostring(b), tostring(c), tostring(d), tostring(e), tostring(f) }, ", ") or ("error: " .. tostring(a))
+    end
+    local newSample
+    if C_SpecializationInfo and C_SpecializationInfo.GetTalentInfo then
+      local ok, x = pcall(C_SpecializationInfo.GetTalentInfo,
+        { specializationIndex = 1, talentIndex = 1, isInspect = false, isPet = false, groupIndex = group })
+      if not ok then newSample = "error: " .. tostring(x)
+      elseif type(x) ~= "table" then newSample = tostring(x)
+      else
+        local keys = {}
+        for k, v in pairs(x) do keys[#keys + 1] = tostring(k) .. "=" .. tostring(v) end
+        table.sort(keys); newSample = table.concat(keys, ", ")
+      end
+    end
+    ns.char.talentDiag = {
+      level = ns.player and ns.player.level, found = n, spent = T.total, source = ns.talentSource,
+      numTabs = numTabs, group = group, tabs = table.concat(tabs, " | "),
+      hasGlobal = GetTalentInfo ~= nil, hasNew = C_SpecializationInfo ~= nil and C_SpecializationInfo.GetTalentInfo ~= nil,
+      hasNumTalents = GetNumTalents ~= nil, numTalents1 = GetNumTalents and select(2, pcall(GetNumTalents, 1)) or nil,
+      globalSample = sample, newSample = newSample,
+    }
+  end
+end
+
+-- Rescan when the talent list is empty (talent data can arrive after login). Throttled.
+function ns.EnsureTalents()
+  if next(ns.talents.byName) then return end
+  local now = GetTime and GetTime() or 0
+  if ns.talents.scannedAt and now - ns.talents.scannedAt < 1 then return end
+  ns.ScanTalents()
 end
 
 -- /fg talentdebug: what the client's talent API returns, for bug reports.
@@ -437,6 +476,7 @@ for _, e in ipairs({ "ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_LEVEL_UP", "QUEST_T
   events:RegisterEvent(e)
 end
 pcall(events.RegisterEvent, events, "PLAYER_TALENT_UPDATE")
+pcall(events.RegisterEvent, events, "SPELLS_CHANGED")
 
 local refreshPending = false
 local function QueueRefresh()
@@ -472,7 +512,17 @@ events:SetScript("OnEvent", function(_, event, ...)
       :format(ns.player.raceName or "?", ns.player.className or "?", ns.player.faction or "", #ns.route))
 
   elseif event == "PLAYER_ENTERING_WORLD" then
+    ns.ScanTalents()
     QueueRefresh()
+    -- Talent data can arrive a little after login; retry while the list is still empty.
+    for _, delay in ipairs({ 2, 6, 15 }) do
+      C_Timer.After(delay, function()
+        if not next(ns.talents.byName) then ns.ScanTalents(); QueueRefresh() end
+      end)
+    end
+
+  elseif event == "SPELLS_CHANGED" then
+    if not next(ns.talents.byName) then ns.ScanTalents(); QueueRefresh() end
 
   elseif event == "PLAYER_LEVEL_UP" then
     local level = ...
