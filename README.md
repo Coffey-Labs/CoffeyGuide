@@ -68,4 +68,6 @@ Bundled libraries: LibStub, CallbackHandler-1.0, HereBeDragons-2.0, LibDataBroke
 and LibDBIcon-1.0, each under its own license. Route, quest and gear data were compiled
 from public WoW Forever guides and databases.
 
-Copyright (c) 2026 Coffey Labs LLC.
+## License
+
+MIT. See [LICENSE](LICENSE). Copyright (c) 2026 Coffey Labs LLC.
