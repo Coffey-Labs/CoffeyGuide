@@ -1,4 +1,4 @@
--- ForeverGuide shared UI helpers.
+-- Coffey's Leveling Guide shared UI helpers.
 local ADDON, ns = ...
 local UI = {}
 ns.UI = UI
@@ -226,7 +226,7 @@ end
 local linkBox
 function ns.ShowLink(url)
   if not linkBox then
-    linkBox = UI.Panel("ForeverGuideLinkPopup", UIParent, 340, 74)
+    linkBox = UI.Panel("CoffeyGuideLinkPopup", UIParent, 340, 74)
     linkBox:SetPoint("CENTER", 0, 120)
     linkBox:SetFrameStrata("FULLSCREEN_DIALOG")
     local t = UI.Text(linkBox, "GameFontNormal")

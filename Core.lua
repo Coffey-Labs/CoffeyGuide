@@ -1,4 +1,4 @@
--- ForeverGuide core: player detection, route building, progress, talents, professions, events.
+-- Coffey's Leveling Guide core: player detection, route building, progress, talents, professions, events.
 local ADDON, ns = ...
 local Print = ns.Print
 
@@ -404,7 +404,7 @@ function ns.EnsureTalents()
   ns.ScanTalents()
 end
 
--- /fg talentdebug: what the client's talent API returns, for bug reports.
+-- /cguide talentdebug: what the client's talent API returns, for bug reports.
 function ns.TalentDebug()
   ns.ScanTalents()
   local n = 0; for _ in pairs(ns.talents.byName) do n = n + 1 end
@@ -575,13 +575,13 @@ events:SetScript("OnEvent", function(_, event, ...)
   if event == "ADDON_LOADED" then
     local name = ...
     if name == ADDON then
-      ForeverGuideDB = ForeverGuideDB or {}
-      for k, v in pairs(DEFAULTS) do if ForeverGuideDB[k] == nil then ForeverGuideDB[k] = v end end
-      ForeverGuideCharDB = ForeverGuideCharDB or {}
-      local c = ForeverGuideCharDB
+      CoffeyGuideDB = CoffeyGuideDB or {}
+      for k, v in pairs(DEFAULTS) do if CoffeyGuideDB[k] == nil then CoffeyGuideDB[k] = v end end
+      CoffeyGuideCharDB = CoffeyGuideCharDB or {}
+      local c = CoffeyGuideCharDB
       c.done, c.skip, c.questNames, c.plan = c.done or {}, c.skip or {}, c.questNames or {}, c.plan or {}
-      if ForeverGuideDB.useQuestie == nil then ForeverGuideDB.useQuestie = true end
-      ns.db, ns.char = ForeverGuideDB, ForeverGuideCharDB
+      if CoffeyGuideDB.useQuestie == nil then CoffeyGuideDB.useQuestie = true end
+      ns.db, ns.char = CoffeyGuideDB, CoffeyGuideCharDB
     end
     ns.Fire("AddonLoaded", name)
 
@@ -593,7 +593,7 @@ events:SetScript("OnEvent", function(_, event, ...)
     ns.ScanProfessions()
     ns.Fire("Login")
     ns.Fire("Refresh")
-    Print(("%s %s %s detected - %d route steps. /fg to toggle, /fg guide for the full guide.")
+    Print(("%s %s %s detected - %d route steps. /cguide to toggle, /cguide guide for the full guide.")
       :format(ns.player.raceName or "?", ns.player.className or "?", ns.player.faction or "", #ns.route))
 
   elseif event == "PLAYER_ENTERING_WORLD" then
@@ -649,8 +649,8 @@ end)
 ---------------------------------------------------------------------------
 -- Slash commands
 ---------------------------------------------------------------------------
-SLASH_FOREVERGUIDE1, SLASH_FOREVERGUIDE2 = "/fg", "/foreverguide"
-SlashCmdList.FOREVERGUIDE = function(msg)
+SLASH_COFFEYGUIDE1, SLASH_COFFEYGUIDE2 = "/cguide", "/coffeyguide"
+SlashCmdList.COFFEYGUIDE = function(msg)
   msg = ns.Trim((msg or ""):lower())
   local tabs = { guide = "route", route = "route", quests = "questlog", log = "questlog", talents = "talents", talent = "talents", spec = "spec",
                  gear = "gear", bis = "gear", prof = "professions", profs = "professions", professions = "professions",
@@ -670,9 +670,9 @@ SlashCmdList.FOREVERGUIDE = function(msg)
     ns.char.pos = nil; ns.Fire("ResetPosition")
   elseif msg == "talentdebug" then ns.TalentDebug()
   elseif msg == "support" or msg == "donate" then
-    Print("ForeverGuide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
+    Print("Coffey's Leveling Guide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
   else
-    Print("/fg - show/hide tracker   /fg guide | talents | spec | gear | prof | gold | dungeons | settings")
-    Print("/fg next | prev   /fg wp - waypoints for this step   /fg reset   /fg resetpos   /fg support")
+    Print("/cguide - show/hide tracker   /cguide guide | talents | spec | gear | prof | gold | dungeons | settings")
+    Print("/cguide next | prev   /cguide wp - waypoints for this step   /cguide reset   /cguide resetpos   /cguide support")
   end
 end

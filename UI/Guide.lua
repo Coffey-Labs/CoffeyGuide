@@ -1,4 +1,4 @@
--- ForeverGuide: the full guide window (route, talents, spec, gear, professions, gold & extras, dungeons, settings).
+-- Coffey's Leveling Guide: the full guide window (route, talents, spec, gear, professions, gold & extras, dungeons, settings).
 local ADDON, ns = ...
 local UI = ns.UI
 local g -- window
@@ -510,20 +510,20 @@ local function BuildSettings()
   plus:SetPoint("LEFT", minus, "RIGHT", 2, 0)
   y = y + 40
 
-  local reset = UI.Button(settingsFrame, "Reset route progress", 170, function() SlashCmdList.FOREVERGUIDE("reset") end)
+  local reset = UI.Button(settingsFrame, "Reset route progress", 170, function() SlashCmdList.COFFEYGUIDE("reset") end)
   reset:SetPoint("TOPLEFT", 0, -y)
   local site = UI.Button(settingsFrame, "coffeylabs.org", 120, function() ns.ShowLink(ns.WEBSITE) end)
-  local pos = UI.Button(settingsFrame, "Reset tracker position", 170, function() SlashCmdList.FOREVERGUIDE("resetpos") end)
+  local pos = UI.Button(settingsFrame, "Reset tracker position", 170, function() SlashCmdList.COFFEYGUIDE("resetpos") end)
   pos:SetPoint("LEFT", reset, "RIGHT", 8, 0)
   site:SetPoint("LEFT", pos, "RIGHT", 8, 0)
   y = y + 30
   local support = UI.Button(settingsFrame, "Support Coffey Labs", 170, function() ns.ShowLink(ns.SUPPORT) end)
   support:SetPoint("TOPLEFT", 0, -y)
-  UI.Tooltip(support, "Support Coffey Labs", "ForeverGuide is free. Click to copy the link to our funding options (" .. ns.SUPPORT .. ").")
+  UI.Tooltip(support, "Support Coffey Labs", "Coffey's Leveling Guide is free. Click to copy the link to our funding options (" .. ns.SUPPORT .. ").")
   y = y + 36
   local info = UI.Text(settingsFrame, "GameFontDisableSmall")
   info:SetPoint("TOPLEFT", 0, -y); info:SetWidth(520)
-  info:SetText("ForeverGuide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /fg (toggle tracker), /fg guide, /fg quests, /fg talents, /fg spec, /fg gear, /fg prof, /fg gold, /fg dungeons, /fg sync, /fg wp, /fg next, /fg prev, /fg reset, /fg support.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
+  info:SetText("Coffey's Leveling Guide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /cguide (toggle tracker), /cguide guide, /cguide quests, /cguide talents, /cguide spec, /cguide gear, /cguide prof, /cguide gold, /cguide dungeons, /cguide sync, /cguide wp, /cguide next, /cguide prev, /cguide reset, /cguide support.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
 end
 
 ---------------------------------------------------------------------------
@@ -552,7 +552,7 @@ local function Render()
 end
 
 local function Create()
-  g = UI.Panel("ForeverGuideWindow", UIParent, 760, 580)
+  g = UI.Panel("CoffeyGuideWindow", UIParent, 760, 580)
   g:SetPoint("CENTER")
   g:SetFrameStrata("HIGH")
   g:SetClampedToScreen(true)
@@ -560,14 +560,14 @@ local function Create()
   g:SetScript("OnDragStart", g.StartMoving)
   g:SetScript("OnDragStop", g.StopMovingOrSizing)
   g:Hide()
-  tinsert(UISpecialFrames, "ForeverGuideWindow") -- close with Escape
+  tinsert(UISpecialFrames, "CoffeyGuideWindow") -- close with Escape
 
   local logo = g:CreateTexture(nil, "ARTWORK")
   logo:SetSize(30, 30); logo:SetPoint("TOPLEFT", 12, -10)
   UI.ClassIcon(logo, ns.player.class)
   local name = UI.Text(g, "GameFontNormalLarge")
   name:SetPoint("LEFT", logo, "RIGHT", 8, 0)
-  name:SetText("ForeverGuide")
+  name:SetText("Coffey's Leveling Guide")
   local credit = CreateFrame("Button", nil, g)
   credit:SetPoint("LEFT", name, "RIGHT", 10, -1)
   credit.text = UI.Text(credit, "GameFontHighlightSmall")

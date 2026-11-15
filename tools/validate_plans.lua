@@ -30,7 +30,7 @@ function ns.AddQuestPlan(p, steps)
 end
 local chunk, e = loadfile(file)
 if not chunk then print("LOAD ERROR: " .. e); os.exit(1) end
-local ok, e2 = pcall(chunk, "ForeverGuide", ns)
+local ok, e2 = pcall(chunk, "CoffeyGuide", ns)
 if not ok then print("RUN ERROR: " .. e2); os.exit(1) end
 for p, n in pairs(counts) do local q = 0; for _ in pairs(quests[p]) do q = q + 1 end; print(("%-28s %3d steps %3d quests"):format(p, n, q)) end
 for id in pairs(allowed) do if not counts[id] then print("MISSING plan for " .. id) end end

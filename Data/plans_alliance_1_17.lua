@@ -1,4 +1,4 @@
--- ForeverGuide quest plans: Alliance starting zones, levels 1-17
+-- Coffey's Leveling Guide quest plans: Alliance starting zones, levels 1-17
 -- (Human: Northshire, Elwynn, Westfall; Dwarf/Gnome: Coldridge, Kharanos, East Dun Morogh,
 --  Loch Modan; Night Elf: Shadowglen, Dolanaar, Darkshore).
 -- Sources: wowhandbook.com zone leveling guides (route order, NPC/objective coords),

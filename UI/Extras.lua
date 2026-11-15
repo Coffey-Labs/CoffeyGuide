@@ -1,4 +1,4 @@
--- ForeverGuide: talent window highlight, level-up popup, minimap/compartment button.
+-- Coffey's Leveling Guide: talent window highlight, level-up popup, minimap/compartment button.
 local ADDON, ns = ...
 local UI = ns.UI
 
@@ -75,7 +75,7 @@ ns.On("Refresh", UpdateTalentGlow)
 local toast
 
 local function CreateToast()
-  toast = UI.Panel("ForeverGuideToast", UIParent, 360, 120)
+  toast = UI.Panel("CoffeyGuideToast", UIParent, 360, 120)
   toast:SetPoint("TOP", UIParent, "TOP", 0, -180)
   toast:SetFrameStrata("DIALOG")
   toast:Hide()
@@ -136,29 +136,29 @@ end)
 local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
 local DBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
 
-function ForeverGuide_OnAddonCompartmentClick(_, button)
+function CoffeyGuide_OnAddonCompartmentClick(_, button)
   if button == "RightButton" then ns.Fire("ToggleTracker") else ns.Fire("OpenGuide") end
 end
 
 ns.On("Login", function()
   if not LDB or not DBIcon then return end
-  local obj = LDB:NewDataObject("ForeverGuide", {
-    type = "launcher", text = "ForeverGuide", icon = "Interface\\Icons\\INV_Misc_Book_09",
-    OnClick = function(_, button) ForeverGuide_OnAddonCompartmentClick(nil, button) end,
+  local obj = LDB:NewDataObject("CoffeyGuide", {
+    type = "launcher", text = "Coffey's Leveling Guide", icon = "Interface\\Icons\\INV_Misc_Book_09",
+    OnClick = function(_, button) CoffeyGuide_OnAddonCompartmentClick(nil, button) end,
     OnTooltipShow = function(tt)
-      tt:AddLine("ForeverGuide", 1, 0.82, 0)
+      tt:AddLine("Coffey's Leveling Guide", 1, 0.82, 0)
       local step = ns.route[ns.CurrentIndex()]
       if step then tt:AddLine("Now: " .. (step.title or ""), 1, 1, 1) end
       tt:AddLine("Left-click: full guide", 0.6, 0.6, 0.6)
       tt:AddLine("Right-click: show/hide tracker", 0.6, 0.6, 0.6)
       tt:AddLine("by Coffey Labs LLC - coffeylabs.org", 0.4, 0.73, 1)
-      tt:AddLine("Support us: coffeylabs.org/support (/fg support)", 0.4, 0.73, 1)
+      tt:AddLine("Support us: coffeylabs.org/support (/cguide support)", 0.4, 0.73, 1)
     end,
   })
-  DBIcon:Register("ForeverGuide", obj, ns.db.minimap)
+  DBIcon:Register("CoffeyGuide", obj, ns.db.minimap)
 end)
 
 ns.On("MinimapChanged", function()
   if not DBIcon then return end
-  if ns.db.minimap.hide then DBIcon:Hide("ForeverGuide") else DBIcon:Show("ForeverGuide") end
+  if ns.db.minimap.hide then DBIcon:Hide("CoffeyGuide") else DBIcon:Show("CoffeyGuide") end
 end)

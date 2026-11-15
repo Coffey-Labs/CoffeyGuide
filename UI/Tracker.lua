@@ -1,4 +1,4 @@
--- ForeverGuide tracker: the compact always-on panel showing the current step.
+-- Coffey's Leveling Guide tracker: the compact always-on panel showing the current step.
 local ADDON, ns = ...
 local UI = ns.UI
 local W = 340
@@ -23,7 +23,7 @@ local function KindIcon(step)
 end
 
 local function Create()
-  frame = UI.Panel("ForeverGuideTracker", UIParent, W, 200)
+  frame = UI.Panel("CoffeyGuideTracker", UIParent, W, 200)
   frame:SetFrameStrata("MEDIUM")
   frame:SetClampedToScreen(true)
   frame:SetMovable(true); frame:EnableMouse(true); frame:RegisterForDrag("LeftButton")

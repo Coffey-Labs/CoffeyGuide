@@ -1,4 +1,4 @@
--- ForeverGuide gear advisor: scores items with spec stat weights, flags bag upgrades,
+-- Coffey's Leveling Guide gear advisor: scores items with spec stat weights, flags bag upgrades,
 -- annotates tooltips and recommends quest rewards.
 local ADDON, ns = ...
 ns.WEIGHTS = ns.WEIGHTS or {}
@@ -184,12 +184,12 @@ local function OnItemTooltip(tooltip)
   if not pct then return end
   local _, spec = G.Weights()
   if ns.rewardPick and ns.rewardPick == link then
-    tooltip:AddLine("|TInterface\\RaidFrame\\ReadyCheck-Ready:14|t ForeverGuide: recommended quest reward", 0.3, 0.9, 0.3)
+    tooltip:AddLine("|TInterface\\RaidFrame\\ReadyCheck-Ready:14|t Coffey's Guide: recommended quest reward", 0.3, 0.9, 0.3)
   end
   if pct >= 1 then
-    tooltip:AddLine(("ForeverGuide: |cff4ce64c+%d%% upgrade|r for %s"):format(pct, spec), 1, 0.82, 0)
+    tooltip:AddLine(("Coffey's Guide: |cff4ce64c+%d%% upgrade|r for %s"):format(pct, spec), 1, 0.82, 0)
   elseif pct <= -1 then
-    tooltip:AddLine(("ForeverGuide: %d%% vs equipped (%s)"):format(pct, spec), 0.6, 0.6, 0.6)
+    tooltip:AddLine(("Coffey's Guide: %d%% vs equipped (%s)"):format(pct, spec), 0.6, 0.6, 0.6)
   end
   tooltip:Show()
 end
@@ -215,7 +215,7 @@ local announced = {}
 
 local function CreatePopup()
   local UI = ns.UI
-  popup = UI.Panel("ForeverGuideUpgrade", UIParent, 300, 64)
+  popup = UI.Panel("CoffeyGuideUpgrade", UIParent, 300, 64)
   popup:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 220)
   popup:SetFrameStrata("DIALOG")
   popup:Hide()
