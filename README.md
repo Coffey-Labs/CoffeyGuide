@@ -17,9 +17,9 @@ uses that name and the `/fg` command.
 - **Quest-by-quest plans** for every zone on the route: accept, kill, collect and
   turn-in steps with map waypoints, checked against your quest log and
   completed-quest history.
-- Forever's new zones (Zephras Isle, Riverglades, Shen'dralas and Mount Hyjal) are
-  covered too. Their quest data is newer than the classic zones', so if a step looks
-  wrong, skip it and let us know in an issue.
+- Riverglades, Shen'dralas and Mount Hyjal have no published routes yet, so their
+  steps follow the quest chains and quest-giver locations, and some objectives there
+  have no waypoint. If a step looks wrong, skip it and open an issue.
 - **Tracker** panel with the current step, zone progress, live objectives and the next
   talent point.
 - **Talents**: two or three leveling builds per class, detected from the points you
