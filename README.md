@@ -40,15 +40,15 @@ type `/reload`.
 | Command | Does |
 |---|---|
 | `/fg` | Show or hide the tracker |
-| `/fg guide` | The full guide window |
-| `/fg quests` | Quest log tab |
-| `/fg talents`, `/fg spec`, `/fg gear`, `/fg prof` | Those tabs |
-| `/fg gold`, `/fg dungeons`, `/fg settings` | Those tabs |
+| `/fg guide` | Open the full guide window |
+| `/fg quests` | Open the quest log tab |
+| `/fg talents`, `/fg spec`, `/fg gear`, `/fg prof` | Open those tabs |
+| `/fg gold`, `/fg dungeons`, `/fg settings` | Open those tabs |
 | `/fg next`, `/fg prev` | Move between route steps |
 | `/fg wp` | Set a waypoint for the current step |
 | `/fg sync` | Re-read completed quests |
 | `/fg resetpos` | Reset window positions |
-| `/fg support` | Link to our funding options |
+| `/fg support` | Show the link to our funding options |
 
 The minimap button and the addon compartment open the guide (left-click) or toggle
 the tracker (right-click).
