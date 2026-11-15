@@ -1,11 +1,14 @@
-# ForeverGuide
+# Coffey's Leveling Guide
 
 A free, standalone leveling and gear guide for **World of Warcraft: Forever**, by
 [Coffey Labs LLC](https://coffeylabs.org).
 
 It works out your race, class, spec and professions on its own, then shows the next
 thing to do: the zone route from 1 to 60 for both factions and every race, including
-Skyborne, plus quest-by-quest steps for the zones that have them.
+Skyborne, with quest-by-quest steps for every zone.
+
+Formerly named ForeverGuide. It was renamed in 3.0.0 because another WoW Forever addon already
+uses that name and the `/fg` command.
 
 ## Features
 
@@ -25,16 +28,16 @@ Skyborne, plus quest-by-quest steps for the zones that have them.
 - Optional quality-of-life settings (auto accept, auto turn-in, sell gray items,
   auto repair). All are off by default; hold Shift to bypass them.
 
-ForeverGuide needs no other addons. When TomTom, Questie or ForeverDungeonJournal are
+Coffey's Leveling Guide needs no other addons. When TomTom, Questie or ForeverDungeonJournal are
 installed it uses them for waypoints and NPC locations, and never changes their
 settings or frames.
 
 ## Install
 
-Download `ForeverGuide-<version>.zip` from
-[Releases](https://git.coffeylabs.org/coffey-labs/ForeverGuide/releases) and unzip it into
+Download `CoffeyGuide-<version>.zip` from
+[Releases](https://git.coffeylabs.org/coffey-labs/CoffeyGuide/releases) and unzip it into
 `World of Warcraft/_forever_/Interface/AddOns/`, so the addon ends up in
-`AddOns/ForeverGuide`. Then restart the game or type `/reload`.
+`AddOns/CoffeyGuide`. Then restart the game or type `/reload`.
 
 Cloning this repository straight into `AddOns/` works too.
 
@@ -42,16 +45,16 @@ Cloning this repository straight into `AddOns/` works too.
 
 | Command | Does |
 |---|---|
-| `/fg` | Show or hide the tracker |
-| `/fg guide` | Open the full guide window |
-| `/fg quests` | Open the quest log tab |
-| `/fg talents`, `/fg spec`, `/fg gear`, `/fg prof` | Open those tabs |
-| `/fg gold`, `/fg dungeons`, `/fg settings` | Open those tabs |
-| `/fg next`, `/fg prev` | Move between route steps |
-| `/fg wp` | Set a waypoint for the current step |
-| `/fg sync` | Re-read completed quests |
-| `/fg resetpos` | Reset window positions |
-| `/fg support` | Show the link to our funding options |
+| `/cguide` | Show or hide the tracker |
+| `/cguide guide` | Open the full guide window |
+| `/cguide quests` | Open the quest log tab |
+| `/cguide talents`, `/cguide spec`, `/cguide gear`, `/cguide prof` | Open those tabs |
+| `/cguide gold`, `/cguide dungeons`, `/cguide settings` | Open those tabs |
+| `/cguide next`, `/cguide prev` | Move between route steps |
+| `/cguide wp` | Set a waypoint for the current step |
+| `/cguide sync` | Re-read completed quests |
+| `/cguide resetpos` | Reset window positions |
+| `/cguide support` | Show the link to our funding options |
 
 The minimap button and the addon compartment open the guide (left-click) or toggle
 the tracker (right-click).
@@ -75,10 +78,10 @@ from public WoW Forever guides and databases.
 
 ## Support the project
 
-ForeverGuide is free and will stay free. If it saves you time, you can help keep
+Coffey's Leveling Guide is free and will stay free. If it saves you time, you can help keep
 Coffey Labs going through GitHub Sponsors or Liberapay. Our
 [funding options](https://coffeylabs.org/support/) page lists both, along with what
-the money pays for. In game, `/fg support` shows the link.
+the money pays for. In game, `/cguide support` shows the link.
 
 ## License
 

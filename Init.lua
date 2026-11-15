@@ -1,4 +1,4 @@
--- ForeverGuide: namespace, data registries and small shared helpers.
+-- Coffey's Leveling Guide: namespace, data registries and small shared helpers.
 local ADDON, ns = ...
 
 ns.ADDON = ADDON
@@ -71,7 +71,7 @@ ns.COLORS = {
   border = { 0.55, 0.45, 0.25, 1.00 },
 }
 
-local PREFIX = "|cffffd100ForeverGuide:|r "
+local PREFIX = "|cffffd100Coffey's Guide:|r "
 function ns.Print(msg) DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. tostring(msg)) end
 
 function ns.Hex(c) return ("|cff%02x%02x%02x"):format(c[1] * 255, c[2] * 255, c[3] * 255) end

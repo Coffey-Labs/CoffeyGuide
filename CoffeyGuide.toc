@@ -1,16 +1,16 @@
 ## Interface: 16001
-## Title: ForeverGuide
-## Notes: Leveling guide for WoW Forever: route for every race/class, talents, spec guides, gear & pre-raid BiS, professions, gold and extras. /fg
-## Version: 2.1.0
+## Title: Coffey's Leveling Guide
+## Notes: Leveling guide for WoW Forever: route for every race/class, talents, spec guides, gear & pre-raid BiS, professions, gold and extras. /cguide
+## Version: 3.0.0
 ## Author: Coffey Labs LLC
 ## X-Website: https://coffeylabs.org
 ## X-Copyright: Copyright (c) 2026 Coffey Labs LLC
 ## X-License: MIT
 ## IconTexture: Interface\Icons\INV_Misc_Book_09
-## SavedVariables: ForeverGuideDB
-## SavedVariablesPerCharacter: ForeverGuideCharDB
+## SavedVariables: CoffeyGuideDB
+## SavedVariablesPerCharacter: CoffeyGuideCharDB
 ## OptionalDeps: TomTom, Questie, ForeverDungeonJournal
-## AddonCompartmentFunc: ForeverGuide_OnAddonCompartmentClick
+## AddonCompartmentFunc: CoffeyGuide_OnAddonCompartmentClick
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua

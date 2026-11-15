@@ -1,4 +1,4 @@
--- Loads ForeverGuide against a mock WoW API and drives it through its main flows.
+-- Loads Coffey's Leveling Guide against a mock WoW API and drives it through its main flows.
 -- usage: lua5.1 harness.lua <addonDir> <dataDir> <race> <raceFile> <class> <faction> <level>
 local dir, dataDir = arg[1], arg[2]
 local P = { race = arg[3] or "Undead", raceFile = arg[4] or "Scourge", class = arg[5] or "PALADIN",
@@ -156,7 +156,7 @@ end
 
 ---------------------------------------------------------------- load files from the toc
 local ns = {}
-local toc = io.open(dir .. "/ForeverGuide.toc"):read("*a")
+local toc = io.open(dir .. "/CoffeyGuide.toc"):read("*a")
 local missing = {}
 for line in toc:gmatch("[^\r\n]+") do
   if not line:match("^##") and line:match("%.lua$") and not line:match("^Libs") then
@@ -167,7 +167,7 @@ for line in toc:gmatch("[^\r\n]+") do
       if err:match("No such file") or err:match("cannot open") then missing[#missing + 1] = path
       else error(err) end
     else
-      chunk("ForeverGuide", ns)
+      chunk("CoffeyGuide", ns)
     end
   end
 end
@@ -206,7 +206,7 @@ if os.getenv("HISTORY") then
     end
   end
 end
-fire("ADDON_LOADED", "ForeverGuide")
+fire("ADDON_LOADED", "CoffeyGuide")
 fire("PLAYER_LOGIN")
 fire("ADDON_LOADED", "Blizzard_TalentUI")
 if os.getenv("TALENT_LATE") then
@@ -226,12 +226,12 @@ ns.TalentDebug()
 if os.getenv("TALENT_API") then for k, v in pairs(ns.char.talentDiag) do print("diag", k, v) end end
 
 for _, tab in ipairs({ "quests", "route", "talents", "spec", "gear", "professions", "extras", "dungeons", "settings" }) do
-  SlashCmdList.FOREVERGUIDE(tab == "route" and "guide" or tab)
+  SlashCmdList.COFFEYGUIDE(tab == "route" and "guide" or tab)
   print("rendered tab", tab)
 end
-SlashCmdList.FOREVERGUIDE("next"); SlashCmdList.FOREVERGUIDE("prev"); SlashCmdList.FOREVERGUIDE("wp")
-SlashCmdList.FOREVERGUIDE("")   -- hide
-SlashCmdList.FOREVERGUIDE("")   -- show
+SlashCmdList.COFFEYGUIDE("next"); SlashCmdList.COFFEYGUIDE("prev"); SlashCmdList.COFFEYGUIDE("wp")
+SlashCmdList.COFFEYGUIDE("")   -- hide
+SlashCmdList.COFFEYGUIDE("")   -- show
 ns.db.minimized = true; ns.Fire("Refresh"); ns.db.minimized = false
 for i = 1, #ns.route do ns.SetView(i) end
 ns.SetView(nil)
@@ -251,7 +251,7 @@ end
 P.level = P.level + 1
 fire("PLAYER_LEVEL_UP", P.level)
 ns.ToggleDone(ns.route[ns.CurrentIndex()]); ns.Skip(ns.route[ns.CurrentIndex()])
-SlashCmdList.FOREVERGUIDE("reset")
+SlashCmdList.COFFEYGUIDE("reset")
 print("after: current", ns.route[ns.CurrentIndex()].id)
 fire("BAG_UPDATE_DELAYED")
 print("upgrade 2H:", ns.Gear.Upgrade("item:2001"), "plate head usable:", ns.Gear.Usable("item:2002"))
@@ -266,6 +266,6 @@ if tstep and ns.PlanFor(tstep) and #ns.PlanFor(tstep) >= 4 then
   local plan = ns.PlanFor(tstep); ns.MarkSub(tstep, plan[4], true); show("go marked")
   print("tirisfal step state:", ns.StepState(tstep))
 end
-SlashCmdList.FOREVERGUIDE("quests")
+SlashCmdList.COFFEYGUIDE("quests")
 ns.ShowLink(ns.WEBSITE); print("website:", ns.WEBSITE)
 print("HARNESS_OK")

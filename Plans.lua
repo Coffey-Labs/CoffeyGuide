@@ -1,4 +1,4 @@
--- ForeverGuide quest plans: quest-by-quest checklists attached to route steps, live quest-log
+-- Coffey's Leveling Guide quest plans: quest-by-quest checklists attached to route steps, live quest-log
 -- tracking, and optional Questie database lookups for NPC locations (never required).
 local ADDON, ns = ...
 

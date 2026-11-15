@@ -1,4 +1,4 @@
--- ForeverGuide quality-of-life automation. Everything here is OFF by default so it never
+-- Coffey's Leveling Guide quality-of-life automation. Everything here is OFF by default so it never
 -- fights other addons (DialogueUI, Immersion, Leatrix Plus...). Hold Shift to bypass.
 local ADDON, ns = ...
 

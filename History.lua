@@ -1,4 +1,4 @@
--- ForeverGuide quest history: reads the server's completed-quest list and the live quest log so
+-- Coffey's Leveling Guide quest history: reads the server's completed-quest list and the live quest log so
 -- route progress reflects everything the character has done, including before the addon existed.
 -- Questie (optional) adds quest names for completed IDs and per-zone quest counts.
 local ADDON, ns = ...

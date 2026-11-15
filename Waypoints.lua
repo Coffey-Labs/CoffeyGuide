@@ -1,4 +1,4 @@
--- ForeverGuide waypoints: world map + minimap pins (HereBeDragons), TomTom integration, built-in arrow.
+-- Coffey's Leveling Guide waypoints: world map + minimap pins (HereBeDragons), TomTom integration, built-in arrow.
 local ADDON, ns = ...
 
 local HBD = LibStub and LibStub("HereBeDragons-2.0", true)
@@ -31,7 +31,7 @@ local function AcquirePin(size)
       GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
       GameTooltip:AddLine(self.label or "", 1, 0.82, 0)
       if self.stepTitle then GameTooltip:AddLine(self.stepTitle, 1, 1, 1) end
-      GameTooltip:AddLine("ForeverGuide", 0.5, 0.5, 0.5)
+      GameTooltip:AddLine("Coffey's Leveling Guide", 0.5, 0.5, 0.5)
       GameTooltip:Show()
     end)
     pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -99,7 +99,7 @@ end
 local arrow
 
 local function CreateArrow()
-  arrow = CreateFrame("Button", "ForeverGuideArrow", UIParent)
+  arrow = CreateFrame("Button", "CoffeyGuideArrow", UIParent)
   arrow:SetSize(64, 80)
   arrow:SetPoint("TOP", UIParent, "TOP", 0, -120)
   arrow:SetMovable(true); arrow:EnableMouse(true); arrow:RegisterForDrag("LeftButton")
