@@ -37,9 +37,10 @@ type `/reload`.
 
 ## Commands
 
-| Command | Opens |
+| Command | Does |
 |---|---|
-| `/fg` | The full guide window |
+| `/fg` | Show or hide the tracker |
+| `/fg guide` | The full guide window |
 | `/fg quests` | Quest log tab |
 | `/fg talents`, `/fg spec`, `/fg gear`, `/fg prof` | Those tabs |
 | `/fg gold`, `/fg dungeons`, `/fg settings` | Those tabs |
