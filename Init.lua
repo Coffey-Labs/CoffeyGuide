@@ -4,6 +4,7 @@ local ADDON, ns = ...
 ns.ADDON = ADDON
 ns.AUTHOR = "Coffey Labs LLC"
 ns.WEBSITE = "https://coffeylabs.org"
+ns.SUPPORT = "https://coffeylabs.org/support/"
 ns.BUILDS, ns.SPELLS, ns.SPECGUIDES, ns.PROFESSIONS = {}, {}, {}, {}
 ns.ALLSTEPS, ns.GEAR = {}, {}
 

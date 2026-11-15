@@ -47,6 +47,7 @@ type `/reload`.
 | `/fg wp` | Set a waypoint for the current step |
 | `/fg sync` | Re-read completed quests |
 | `/fg resetpos` | Reset window positions |
+| `/fg support` | Link to our funding options |
 
 The minimap button and the addon compartment open the guide (left-click) or toggle
 the tracker (right-click).
@@ -67,6 +68,13 @@ Set `HISTORY=1` to start with class quests already completed.
 Bundled libraries: LibStub, CallbackHandler-1.0, HereBeDragons-2.0, LibDataBroker-1.1
 and LibDBIcon-1.0, each under its own license. Route, quest and gear data were compiled
 from public WoW Forever guides and databases.
+
+## Support the project
+
+ForeverGuide is free and will stay free. If it saves you time, you can help keep
+Coffey Labs going through GitHub Sponsors or Liberapay. Our
+[funding options](https://coffeylabs.org/support/) page lists both, along with what
+the money pays for. In game, `/fg support` shows the link.
 
 ## License
 

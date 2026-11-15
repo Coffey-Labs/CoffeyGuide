@@ -473,8 +473,10 @@ SlashCmdList.FOREVERGUIDE = function(msg)
     Print("progress reset."); ns.Fire("Refresh")
   elseif msg == "resetpos" then
     ns.char.pos = nil; ns.Fire("ResetPosition")
+  elseif msg == "support" or msg == "donate" then
+    Print("ForeverGuide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
   else
     Print("/fg - show/hide tracker   /fg guide | talents | spec | gear | prof | gold | dungeons | settings")
-    Print("/fg next | prev   /fg wp - waypoints for this step   /fg reset   /fg resetpos")
+    Print("/fg next | prev   /fg wp - waypoints for this step   /fg reset   /fg resetpos   /fg support")
   end
 end
