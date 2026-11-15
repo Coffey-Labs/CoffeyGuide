@@ -523,7 +523,7 @@ local function BuildSettings()
   y = y + 36
   local info = UI.Text(settingsFrame, "GameFontDisableSmall")
   info:SetPoint("TOPLEFT", 0, -y); info:SetWidth(520)
-  info:SetText("Coffey's Leveling Guide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /cguide (toggle tracker), /cguide guide, /cguide quests, /cguide talents, /cguide spec, /cguide gear, /cguide prof, /cguide gold, /cguide dungeons, /cguide sync, /cguide wp, /cguide next, /cguide prev, /cguide reset, /cguide support.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
+  info:SetText("Coffey's Leveling Guide by Coffey Labs LLC - " .. ns.WEBSITE .. "\nCommands: /cguide (toggle tracker), /cguide guide, /cguide quests, /cguide talents, /cguide spec, /cguide gear, /cguide prof, /cguide gold, /cguide dungeons, /cguide sync, /cguide wp, /cguide next, /cguide prev, /cguide reset, /cguide resetpos, /cguide talentdebug, /cguide support.\nData: wowhandbook.com, icy-veins.com, warcrafttavern.com, warcraftmaps.com, topbuilds.gg (Nov 2026). Level bands are approximate.")
 end
 
 ---------------------------------------------------------------------------

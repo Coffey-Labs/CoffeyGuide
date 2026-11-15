@@ -672,7 +672,7 @@ SlashCmdList.COFFEYGUIDE = function(msg)
   elseif msg == "support" or msg == "donate" then
     Print("Coffey's Leveling Guide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
   else
-    Print("/cguide - show/hide tracker   /cguide guide | talents | spec | gear | prof | gold | dungeons | settings")
-    Print("/cguide next | prev   /cguide wp - waypoints for this step   /cguide reset   /cguide resetpos   /cguide support")
+    Print("/cguide - show/hide tracker   /cguide guide | talents | spec | gear | prof | quests | gold | dungeons | settings")
+    Print("/cguide next | prev   /cguide wp - waypoints for this step   /cguide sync   /cguide reset   /cguide resetpos   /cguide talentdebug   /cguide support")
   end
 end

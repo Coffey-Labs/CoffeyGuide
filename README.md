@@ -12,10 +12,14 @@ uses that name and the `/fg` command.
 
 ## Features
 
-- **Route 1-60** for Horde and Alliance, every starting zone, with optional dungeon
-  steps, class quests and class mounts.
-- **Quest-by-quest plans**: accept, kill, collect and turn-in steps with map
-  waypoints, checked against your quest log and completed-quest history.
+- **Route 1-60** for Horde and Alliance, every starting zone including the Skyborne
+  start on Zephras Isle, with dungeon steps, class quests and class mounts.
+- **Quest-by-quest plans** for every zone on the route: accept, kill, collect and
+  turn-in steps with map waypoints, checked against your quest log and
+  completed-quest history.
+- Forever's new zones (Zephras Isle, Riverglades, Shen'dralas and Mount Hyjal) are
+  covered too. Their quest data is newer than the classic zones', so if a step looks
+  wrong, skip it and let us know in an issue.
 - **Tracker** panel with the current step, zone progress, live objectives and the next
   talent point.
 - **Talents**: two or three leveling builds per class, detected from the points you
@@ -53,8 +57,12 @@ Cloning this repository straight into `AddOns/` works too.
 | `/cguide next`, `/cguide prev` | Move between route steps |
 | `/cguide wp` | Set a waypoint for the current step |
 | `/cguide sync` | Re-read completed quests |
+| `/cguide reset` | Clear this character's guide progress |
 | `/cguide resetpos` | Reset window positions |
+| `/cguide talentdebug` | Print what the game's talent API returns, for bug reports |
 | `/cguide support` | Show the link to our funding options |
+
+`/coffeyguide` works as a longer alias for `/cguide`.
 
 The minimap button and the addon compartment open the guide (left-click) or toggle
 the tracker (right-click).
@@ -65,10 +73,16 @@ the tracker (right-click).
 
     lua5.1 tools/harness.lua . Data Undead Scourge PALADIN Horde 12
 
-Set `HISTORY=1` to start with class quests already completed.
+Set `HISTORY=1` to start with class quests already completed. By default the mock
+exposes the classic global talent functions; `TALENT_API` swaps them for `id`, `new`,
+`tier` (how WoW Forever does it) or `traits`. `TALENT_LATE=1` keeps talent data empty until after login, as on a slow
+client.
+
 `tools/validate_plans.lua` checks a quest-plan data file:
 
     lua5.1 tools/validate_plans.lua Data/plans_horde_10_26.lua h_tirisfal_late,h_silverpine
+
+`media/` holds the project logo. It is not part of the release zip.
 
 ## Credits
 
