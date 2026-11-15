@@ -109,6 +109,12 @@ if os.getenv("TALENT_API") == "new" then
 elseif os.getenv("TALENT_API") == "id" then
   function GetTalentInfo(t, i) local x = talentsByTab[t][i]; return 7, x[1], 1, 1, 1, x[2], x[3] end
 end
+-- TALENT_LATE=1: talent data is empty until after login (as on a slow client).
+if os.getenv("TALENT_LATE") then
+  local gti, gnt = GetTalentInfo, GetNumTalents
+  function GetNumTalents(t) if TALENTS_READY then return gnt(t) end return 0 end
+  function GetTalentInfo(t, i) if TALENTS_READY then return gti(t, i) end return nil end
+end
 function GetNumSkillLines() return 2 end
 function GetSkillLineInfo(i)
   if i == 1 then return "Professions", true end
@@ -170,6 +176,12 @@ end
 fire("ADDON_LOADED", "ForeverGuide")
 fire("PLAYER_LOGIN")
 fire("ADDON_LOADED", "Blizzard_TalentUI")
+if os.getenv("TALENT_LATE") then
+  print("talents at login:", ns.char.talentDiag.found)
+  TALENTS_READY = true
+  fire("SPELLS_CHANGED")
+  print("talents after SPELLS_CHANGED:", ns.char.talentDiag.found)
+end
 print(("route=%d tips=%d builds=%d"):format(#ns.route, #ns.tips, #(ns.BUILDS[P.class] or {})))
 local cur = ns.route[ns.CurrentIndex()]
 print("current:", cur and (cur.id .. " " .. cur.min .. "-" .. (cur.max or "?") .. " " .. cur.title) or "none")
