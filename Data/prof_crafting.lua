@@ -526,6 +526,7 @@ ns.PROFESSIONS["Tailoring"] = {
     "Robes of Fiery Devastation (NEW, 300, epic): 27 Sta, 24 Int, up to 26 Fire dmg; Mooncloth + Malleable Essence of Nature.",
     "Runecloth Cuffs (NEW, Pexmit, Mount Hyjal) and Swarmtender's Cord / Venomspew line (NEW, Mishta, Cenarion Hold): 260-300 skill-ups.",
     "Mooncloth (230, cooldown), Runecloth Bag (215, now needs Magenta + Cerulean Dye): gold makers.",
+    "Bags cost more bolts since Nov 11: Green/Red Woolen Bag 5 (was 4), Green Silk Pack 5 (was 4), Black Silk Pack 6 (was 5), Red Mageweave Bag 5 (was 4).",
     "Robe of the Archmage / Truefaith Vestments (295): classic caster pre-raid; now need Viridian Dye from Alchemy.",
   },
   source = "https://wowhandbook.com/professions/tailoring/",

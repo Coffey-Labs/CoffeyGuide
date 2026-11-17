@@ -172,7 +172,7 @@ ns.PROFESSIONS["Cooking"] = {
       note = "First do Clamlette Surprise (Dirge Quikcleave, Gadgetzan, lvl 35). Recipe ~1g60s: Gikkix, Steamwheedle Port, Tanaris 66.6,22.1. Yellow 265, grey 305. Alt: Tender Wolf Steak (Dirge) or Monster Omelet (Himmik, Everlook), same breakpoints." },
   },
   recipes = {
-    "Camp: Basic Campfire Kit (skill 1, Simple Wood) - 3 camp slots; Journeyman Campfire Kit (use 140; blueprint from Lord Serpentis, Wailing Caverns) - 5 slots; Expert Campfire Kit (use 220) - 10 slots",
+    "Camp: Basic Campfire Kit (skill 1, Simple Wood) - 3 camp slots; Journeyman Campfire Kit (use 90 since Nov 10, was 140; blueprint from Lord Serpentis, Wailing Caverns) - 5 slots; Expert Campfire Kit (use 220) - 10 slots",
     "Camp: Iron Oven (skill 300; 10 Simple Flour, 5 Refreshing Spring Water, 4 Soothing Spices) - required for Mightfish Steak, Lobster Stew, Cleansing Stew",
     "Cookie's Feast (skill 140, blueprint from Cookie, Deadmines) - Stamina feast",
     "NEW teas (healing power): Peace Tea 25, Royal Tea 100, Root Tea 125, Triage Tea 180, Sunny Tea 200, Sage's Tea 250",
