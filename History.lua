@@ -33,6 +33,7 @@ end
 -- Completed quests
 ---------------------------------------------------------------------------
 function ns.LoadCompleted()
+  ns.Invalidate()
   wipe(ns.completed)
   if C_QuestLog and C_QuestLog.GetAllCompletedQuestIDs then
     for _, id in ipairs(C_QuestLog.GetAllCompletedQuestIDs() or {}) do ns.completed[id] = true end
@@ -58,7 +59,7 @@ function ns.ResolveCompletedNames(onDone)
     end
     i = stop + 1
     if i <= #ids then C_Timer.After(0.05, batch)
-    else resolved = true; if onDone then onDone() end end
+    else resolved = true; ns.Invalidate(); if onDone then onDone() end end
   end
   if #ids > 0 then batch() else resolved = true; if onDone then onDone() end end
 end
@@ -116,10 +117,20 @@ function ns.SyncHistory(announce)
     ns.char.view = nil
     ns.Fire("Refresh")
     if announce then
+      local sum = ns.Detect and ns.Detect.Summary()
       local step = ns.route[ns.CurrentIndex()]
-      ns.Print(("Synced %d completed quests from your quest history. Current step: |cffffd100%s|r")
-        :format(n, step and step.title or "?"))
+      if sum and sum.done + sum.outleveled > 0 then
+        ns.Print(("Synced %d completed quests: %d of %d route steps already done. Current step: |cffffd100%s|r")
+          :format(n, sum.done + sum.outleveled, sum.total, step and step.title or "?"))
+      else
+        ns.Print(("Synced %d completed quests from your quest history. Current step: |cffffd100%s|r")
+          :format(n, step and step.title or "?"))
+      end
+      if sum and sum.suggestStep then
+        ns.Print(sum.suggestReason .. " The tracker offers to jump to |cffffd100" .. (sum.suggestStep.title or "?") .. "|r.")
+      end
     end
+    ns.Fire("HistoryReady")
   end)
 end
 
@@ -130,6 +141,7 @@ ns.On("Login", function()
 end)
 
 ns.On("QuestTurnedIn", function(id, title)
+  ns.Invalidate()
   if id then ns.completed[id] = true end
   if title then ns.completedNames[title] = true end
   wipe(zoneStatsCache)

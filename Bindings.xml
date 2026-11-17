@@ -1,0 +1,9 @@
+<Bindings>
+  <Binding name="COFFEYGUIDE_TOGGLE" header="COFFEYGUIDE" category="ADDONS">CoffeyGuide_Binding("toggle")</Binding>
+  <Binding name="COFFEYGUIDE_GUIDE" category="ADDONS">CoffeyGuide_Binding("guide")</Binding>
+  <Binding name="COFFEYGUIDE_CHECK" category="ADDONS">CoffeyGuide_Binding("check")</Binding>
+  <Binding name="COFFEYGUIDE_NEXT" category="ADDONS">CoffeyGuide_Binding("next")</Binding>
+  <Binding name="COFFEYGUIDE_PREV" category="ADDONS">CoffeyGuide_Binding("prev")</Binding>
+  <Binding name="COFFEYGUIDE_WAYPOINT" category="ADDONS">CoffeyGuide_Binding("waypoint")</Binding>
+  <Binding name="COFFEYGUIDE_COMPACT" category="ADDONS">CoffeyGuide_Binding("compact")</Binding>
+</Bindings>

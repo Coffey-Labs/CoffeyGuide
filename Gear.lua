@@ -187,7 +187,7 @@ local function OnItemTooltip(tooltip)
     tooltip:AddLine("|TInterface\\RaidFrame\\ReadyCheck-Ready:14|t Coffey's Guide: recommended quest reward", 0.3, 0.9, 0.3)
   end
   if pct >= 1 then
-    tooltip:AddLine(("Coffey's Guide: |cff4ce64c+%d%% upgrade|r for %s"):format(pct, spec), 1, 0.82, 0)
+    tooltip:AddLine(("Coffey's Guide: " .. ns.C("good") .. "+%d%% upgrade|r for %s"):format(pct, spec), 1, 0.82, 0)
   elseif pct <= -1 then
     tooltip:AddLine(("Coffey's Guide: %d%% vs equipped (%s)"):format(pct, spec), 0.6, 0.6, 0.6)
   end
@@ -223,12 +223,13 @@ local function CreatePopup()
   popup.title = UI.Text(popup, "GameFontNormal"); popup.title:SetPoint("TOPLEFT", popup.icon, "TOPRIGHT", 8, 0)
   popup.title:SetWidth(240)
   popup.sub = UI.Text(popup, "GameFontHighlightSmall"); popup.sub:SetPoint("TOPLEFT", popup.title, "BOTTOMLEFT", 0, -2)
+  UI.FadeIn(popup, 10)
   popup.equip = UI.Button(popup, "Equip", 60, function()
     if InCombatLockdown() then ns.Print("Can't equip in combat."); return end
     if popup.bag and C_Container and C_Container.UseContainerItem then C_Container.UseContainerItem(popup.bag, popup.slot)
     elseif popup.bag and UseContainerItem then UseContainerItem(popup.bag, popup.slot) end
     popup:Hide()
-  end)
+  end, "primary")
   popup.equip:SetPoint("BOTTOMRIGHT", -70, 6)
   popup.ignore = UI.Button(popup, "Ignore", 60, function() popup:Hide() end)
   popup.ignore:SetPoint("LEFT", popup.equip, "RIGHT", 4, 0)
@@ -272,7 +273,7 @@ function G.ScanBags()
     popup.icon:SetTexture(select(10, GetItemInfo(best)) or "Interface\\Icons\\INV_Misc_QuestionMark")
     popup.title:SetText("Upgrade: " .. best)
     local _, spec = G.Weights()
-    popup.sub:SetText(("|cff4ce64c+%d%%|r for %s"):format(bestPct, spec))
+    popup.sub:SetText((ns.C("good") .. "+%d%%|r for %s"):format(bestPct, spec))
     popup:Show()
   end
 end

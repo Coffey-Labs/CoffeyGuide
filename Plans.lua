@@ -103,18 +103,90 @@ end
 function ns.MarkSub(step, s, value)
   ns.char.plan[step.id] = ns.char.plan[step.id] or {}
   ns.char.plan[step.id][s._i] = value or nil
+  ns.Invalidate()
   ns.Fire("Refresh")
 end
 
--- Returns plan list, index of first undone sub-step (or nil when finished), done count.
+-- How many different quests past a sub-step must show progress before an untouched
+-- quest is treated as passed by (never picked up, or abandoned).
+local MISSED_AFTER = 3
+
+-- Returns plan list, index of the first open sub-step (nil when finished), done count, and a
+-- set of indexes the player has moved past.
+--
+-- A quest counts as passed by when it is untouched (not in the log, not completed) and at
+-- least MISSED_AFTER other quests whose *first* row comes later in the plan have been picked
+-- up or finished. Only a quest's first row counts: the objectives and turn-ins of quests you
+-- accepted earlier always sit further down the list, and counting those would flag the next
+-- hub's quests while you're simply following the plan. An accept that comes after the turn-in
+-- of a quest still in your log is never flagged either, since it may be that quest's follow-up.
+-- If more than 40% of the plan would be passed by, nothing is: that's a different route
+-- through the zone, not a few skipped quests, so the plan is followed as written.
+-- Passed-by rows stay listed (dimmed) but no longer hold the cursor.
+local memo = {}
+local Compute
 function ns.PlanProgress(step)
+  if not step then return nil end
+  local key = ns.MemoKey()
+  local m = memo[step.id]
+  if m and m.key == key then return m.plan, m.first, m.done, m.missed end
+  local plan, first, done, missed = Compute(step)
+  memo[step.id] = { key = key, plan = plan, first = first, done = done, missed = missed }
+  return plan, first, done, missed
+end
+
+Compute = function(step)
   local plan = ns.PlanFor(step)
   if not plan then return nil end
-  local first, done = nil, 0
+  local n = #plan
+  local doneAt, keyAt, firstPos, touched = {}, {}, {}, {}
+  local done = 0
   for i, s in ipairs(plan) do
-    if ns.SubDone(step, s) then done = done + 1 elseif not first then first = i end
+    if ns.SubDone(step, s) then doneAt[i] = true; done = done + 1 end
+    local k = s.quest and (s.quest[2] or s.quest[1])
+    if k then
+      keyAt[i] = k
+      if not firstPos[k] then
+        firstPos[k] = i
+        touched[k] = (ns.IsQuestActive(s.quest) or ns.IsQuestDone(s.quest)) and true or false
+      end
+    end
   end
-  return plan, first, done
+  -- Open turn-ins of quests in the log, by position: accepts after them may be follow-ups.
+  local openTurninBefore, open = {}, false
+  for i, s in ipairs(plan) do
+    openTurninBefore[i] = open
+    if s.act == "turnin" and s.quest and not doneAt[i] and ns.IsQuestActive(s.quest) then open = true end
+  end
+  local missed, missedKey, ahead = {}, {}, 0
+  for i = n, 1, -1 do
+    local k = keyAt[i]
+    if k and firstPos[k] == i then
+      if touched[k] then
+        ahead = ahead + 1
+      elseif not doneAt[i] and ahead >= MISSED_AFTER and not openTurninBefore[i] then
+        missedKey[k] = true
+      end
+    elseif not k and not doneAt[i] and (plan[i].act == "fp" or plan[i].act == "hs") and ahead >= MISSED_AFTER + 1 then
+      missed[i] = true
+    end
+  end
+  -- Every row of a passed-by quest goes together (accept, objectives and turn-in).
+  for i = 1, n do
+    if keyAt[i] and missedKey[keyAt[i]] and not doneAt[i] then missed[i] = true end
+  end
+  if ns.MissedCount(missed) > n * 0.4 then missed = {} end
+  local first
+  for i = 1, n do
+    if not doneAt[i] and not missed[i] then first = i; break end
+  end
+  return plan, first, done, missed
+end
+
+function ns.MissedCount(missed)
+  local c = 0
+  for _ in pairs(missed or {}) do c = c + 1 end
+  return c
 end
 
 function ns.SubText(s)
@@ -171,6 +243,7 @@ function ns.QuestLogSnapshot()
 end
 
 function ns.ScanLogCompletion()
+  ns.Invalidate()
   wipe(ns.logComplete)
   local num = (GetNumQuestLogEntries and GetNumQuestLogEntries()) or 0
   for i = 1, num do
@@ -212,12 +285,14 @@ local function IsHearthTo(s) return s.act == "hs" and Lower(s.text):find("^heart
 local function Mark(step, s)
   ns.char.plan[step.id] = ns.char.plan[step.id] or {}
   ns.char.plan[step.id][s._i] = true
+  ns.Invalidate()
 end
 
 local function NodeShort(name) return Lower((name or ""):match("^%s*([^,]+)")):gsub("%s+$", "") end
 
 -- Remember every flight path the taxi map lists as known.
 function ns.RecordTaxiNodes()
+  ns.Invalidate()
   ns.char.taxi = ns.char.taxi or {}
   local known, n = ns.char.taxi, 0
   if NumTaxiNodes and TaxiNodeName then

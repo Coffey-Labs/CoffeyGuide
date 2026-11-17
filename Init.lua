@@ -71,6 +71,32 @@ ns.COLORS = {
   border = { 0.55, 0.45, 0.25, 1.00 },
 }
 
+-- Status colors as chat escape codes. The colorblind palette (Okabe-Ito) swaps green and red
+-- for blue and vermillion; status icons differ in shape too, so color is never the only cue.
+local PALETTES = {
+  standard   = { good = "4ce64c", warn = "ff8040", bad = "ff4040", skip = "cc4444", cur = "ffd100", dim = "808080", info = "8080ff" },
+  colorblind = { good = "56b4e9", warn = "e69f00", bad = "d55e00", skip = "d55e00", cur = "f0e442", dim = "808080", info = "cc79a7" },
+}
+function ns.C(key)
+  local pal = PALETTES[(ns.db and ns.db.colorblind) and "colorblind" or "standard"]
+  return "|cff" .. (pal[key] or "ffffff")
+end
+-- Same color as r, g, b (0-1), for textures and font strings.
+function ns.RGB(key)
+  local hex = ns.C(key):sub(5)
+  return tonumber(hex:sub(1, 2), 16) / 255, tonumber(hex:sub(3, 4), 16) / 255, tonumber(hex:sub(5, 6), 16) / 255
+end
+
+-- Key bindings (Bindings.xml). Shown under Options > Keybindings > AddOns.
+BINDING_HEADER_COFFEYGUIDE = "Coffey's Leveling Guide"
+BINDING_NAME_COFFEYGUIDE_TOGGLE = "Show or hide the tracker"
+BINDING_NAME_COFFEYGUIDE_GUIDE = "Open the full guide"
+BINDING_NAME_COFFEYGUIDE_CHECK = "Check off the current objective"
+BINDING_NAME_COFFEYGUIDE_NEXT = "View the next step"
+BINDING_NAME_COFFEYGUIDE_PREV = "View the previous step"
+BINDING_NAME_COFFEYGUIDE_WAYPOINT = "Set waypoints for the current objective"
+BINDING_NAME_COFFEYGUIDE_COMPACT = "Switch the tracker between compact and full"
+
 local PREFIX = "|cffffd100Coffey's Guide:|r "
 function ns.Print(msg) DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. tostring(msg)) end
 
