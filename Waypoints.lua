@@ -186,7 +186,16 @@ ns.On("Refresh", function()
   if target and target.id ~= lastStepID then W.Set(target, false) end
 end)
 
+ns.On("ResetPosition", function()
+  ns.db.arrowPos = nil
+  if arrow then arrow:ClearAllPoints(); arrow:SetPoint("TOP", UIParent, "TOP", 0, -120) end
+end)
+
 ns.On("SetWaypoints", function(step, announce) W.Set(step, announce) end)
+ns.On("WaypointCurrent", function(announce)
+  local target = CurrentTarget()
+  if target then W.Set(target, announce ~= false) end
+end)
 ns.On("SettingsChanged", function()
   local step = ns.route[ns.ViewIndex()]
   W.Set(step, false)

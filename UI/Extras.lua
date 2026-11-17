@@ -76,16 +76,35 @@ local toast
 
 local function CreateToast()
   toast = UI.Panel("CoffeyGuideToast", UIParent, 360, 120)
-  toast:SetPoint("TOP", UIParent, "TOP", 0, -180)
+  local tp = ns.db.toastPos
+  if tp then toast:SetPoint("TOP", UIParent, "BOTTOMLEFT", tp[1], tp[2])
+  else toast:SetPoint("TOP", UIParent, "TOP", 0, -180) end
   toast:SetFrameStrata("DIALOG")
   toast:Hide()
+  UI.FadeIn(toast, 16)
   toast.title = UI.Text(toast, "GameFontNormalHuge")
   toast.title:SetPoint("TOP", 0, -12); toast.title:SetJustifyH("CENTER"); toast.title:SetWidth(340)
   toast.lines = UI.Text(toast, "GameFontHighlight")
   toast.lines:SetPoint("TOP", toast.title, "BOTTOM", 0, -8); toast.lines:SetWidth(330); toast.lines:SetJustifyH("CENTER")
   toast.lines:SetSpacing(3)
+  -- Click to dismiss; drag (when not locked) to move it somewhere out of the way.
   toast:EnableMouse(true)
-  toast:SetScript("OnMouseUp", function(self) self:Hide() end)
+  toast:SetMovable(true); toast:SetClampedToScreen(true); toast:RegisterForDrag("LeftButton")
+  toast:SetScript("OnDragStart", function(self)
+    if ns.db.lock then return end
+    self.dragged = true; self.anim:Stop(); self:SetAlpha(1); self:StartMoving()
+  end)
+  toast:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+    local l, t, w = self:GetLeft(), self:GetTop(), self:GetWidth()
+    if l and t and w then ns.db.toastPos = { l + w / 2, t } end
+    self.anim:Play()
+  end)
+  toast:SetScript("OnMouseUp", function(self)
+    if self.dragged then self.dragged = nil; return end
+    self:Hide()
+  end)
+  UI.Tooltip(toast, "Coffey's Leveling Guide", "Click to dismiss. Drag to move it.")
 
   local ag = toast:CreateAnimationGroup()
   local fade = ag:CreateAnimation("Alpha")
@@ -97,7 +116,7 @@ end
 local function ShowToast(title, lines)
   if not ns.db.toasts then return end
   if not toast then CreateToast() end
-  toast.title:SetText(title)
+  toast.title:SetText(UI.AccentHex() .. title .. "|r")
   toast.lines:SetText(table.concat(lines, "\n"))
   toast:SetHeight(46 + toast.lines:GetStringHeight() + 14)
   toast.anim:Stop(); toast:SetAlpha(1); toast:Show(); toast.anim:Play()
@@ -105,17 +124,19 @@ end
 
 ns.On("LevelUp", function(level)
   local lines = {}
+  -- The popup already says all this; repeat it in chat only when popups are off or quiet mode is.
+  local chatty = not ns.db.toasts or not ns.db.quiet
   local build = ns.GetActiveBuild()
   local plan = build and build.talents and build.talents[level]
   if plan then
     local info = ns.talents.byName[plan[1]]
     lines[#lines + 1] = ("|T%s:16|t |cffffd100Talent:|r %s"):format(info and info.icon or "Interface\\Icons\\INV_Misc_QuestionMark", ns.TalentText(plan))
-    ns.Print(("Level %d talent: |cffffd100%s|r (%s)"):format(level, ns.TalentText(plan), plan[3] or ""))
+    if chatty then ns.Print(("Level %d talent: |cffffd100%s|r (%s)"):format(level, ns.TalentText(plan), plan[3] or "")) end
   end
   local spells = ns.SPELLS[ns.player.class]
   if spells and spells[level] then
     lines[#lines + 1] = "|TInterface\\Icons\\INV_Misc_Book_09:16|t |cffffd100Train:|r " .. spells[level]
-    ns.Print(("Level %d - visit your trainer: %s"):format(level, spells[level]))
+    if chatty then ns.Print(("Level %d - visit your trainer: %s"):format(level, spells[level])) end
   elseif level % 2 == 0 then
     lines[#lines + 1] = "|TInterface\\Icons\\INV_Misc_Book_09:16|t Visit your class trainer"
   end
@@ -127,7 +148,7 @@ ns.On("LevelUp", function(level)
 end)
 
 ns.On("StepAdvanced", function(_, nextStep)
-  if nextStep then ns.Print(("Step done! Next: |cffffd100%s|r (%s)"):format(nextStep.title or "?", ns.BandText(nextStep))) end
+  if nextStep and not ns.db.quiet then ns.Print(("Step done! Next: |cffffd100%s|r (%s)"):format(nextStep.title or "?", ns.BandText(nextStep))) end
 end)
 
 ---------------------------------------------------------------------------
@@ -156,6 +177,11 @@ ns.On("Login", function()
     end,
   })
   DBIcon:Register("CoffeyGuide", obj, ns.db.minimap)
+end)
+
+ns.On("ResetPosition", function()
+  ns.db.toastPos = nil
+  if toast then toast:ClearAllPoints(); toast:SetPoint("TOP", UIParent, "TOP", 0, -180) end
 end)
 
 ns.On("MinimapChanged", function()

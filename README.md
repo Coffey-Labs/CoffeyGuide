@@ -21,7 +21,16 @@ uses that name and the `/fg` command.
   steps follow the quest chains and quest-giver locations, and some objectives there
   have no waypoint. If a step looks wrong, skip it and open an issue.
 - **Tracker** panel with the current step, zone progress, live objectives and the next
-  talent point.
+  talent point. Three layouts: compact (just the next action, with a checkbox), standard
+  and detailed. It fades in combat, goes compact in dungeons and hides in raids and
+  battlegrounds (all optional).
+- **Picks up where you are.** It reads your completed quests, quest log and current zone.
+  Quests you walked past no longer hold up a zone's checklist. If your quest log shows
+  you're further along than the route thinks, the tracker offers to jump there; earlier
+  steps are marked skipped, and Undo puts them back. Class quests and mounts you've
+  outleveled stop blocking the route but stay listed as "still open".
+- A **welcome panel** on each new character sums up what was detected and lets you pick
+  a layout and the automation you want.
 - **Talents**: two or three leveling builds per class, detected from the points you
   have spent, with the next talent highlighted in the talent window.
 - **Spec guides** for all 27 specs.
@@ -31,6 +40,9 @@ uses that name and the `/fg` command.
 - **Gold and extras**: gold-making tips, mounts, attunements and dungeon notes.
 - Optional quality-of-life settings (auto accept, auto turn-in, sell gray items,
   auto repair). All are off by default; hold Shift to bypass them.
+- A resizable guide window with search on every tab, settings grouped by topic (also
+  under Options > AddOns), key bindings, adjustable tracker and text size, a class-color
+  or gold accent, and a colorblind-friendly palette.
 
 Coffey's Leveling Guide needs no other addons. When TomTom, Questie or ForeverDungeonJournal are
 installed it uses them for waypoints and NPC locations, and never changes their
@@ -55,9 +67,12 @@ Cloning this repository straight into `AddOns/` works too.
 | `/cguide talents`, `/cguide spec`, `/cguide gear`, `/cguide prof` | Open those tabs |
 | `/cguide gold`, `/cguide dungeons`, `/cguide settings` | Open those tabs |
 | `/cguide next`, `/cguide prev` | Move between route steps |
+| `/cguide check` | Check off the current objective |
+| `/cguide compact` | Switch the tracker between compact and full |
+| `/cguide welcome` | Show the welcome panel again |
 | `/cguide wp` | Set a waypoint for the current step |
 | `/cguide sync` | Re-read completed quests |
-| `/cguide reset` | Clear this character's guide progress |
+| `/cguide reset` | Clear this character's guide progress (manual checkmarks and skips) |
 | `/cguide resetpos` | Reset window positions |
 | `/cguide talentdebug` | Print what the game's talent API returns, for bug reports |
 | `/cguide support` | Show the link to our funding options |
@@ -66,6 +81,10 @@ Cloning this repository straight into `AddOns/` works too.
 
 The minimap button and the addon compartment open the guide (left-click) or toggle
 the tracker (right-click).
+
+Key bindings are under Options > Keybindings > AddOns > Coffey's Leveling Guide: show
+or hide the tracker, open the guide, check off the current objective, next and previous
+step, waypoint, and compact mode.
 
 ## Development
 
@@ -77,6 +96,10 @@ Set `HISTORY=1` to start with class quests already completed. By default the moc
 exposes the classic global talent functions; `TALENT_API` swaps them for `id`, `new`,
 `tier` (how WoW Forever does it) or `traits`. `TALENT_LATE=1` keeps talent data empty until after login, as on a slow
 client.
+
+It also runs a progress-detection scenario: quests from a later zone in the log, the
+jump and its undo, and a quest that should count as passed by. In zsh, quote-split the
+arguments (`${=args}`) if you loop over several characters.
 
 `tools/validate_plans.lua` checks a quest-plan data file:
 

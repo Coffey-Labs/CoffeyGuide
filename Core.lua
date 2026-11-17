@@ -4,10 +4,14 @@ local Print = ns.Print
 
 local DEFAULTS = {
   arrow = true, pins = true, autoWaypoint = true, toasts = true, lock = false, scale = 1.0,
-  autoSkip = true, useTomTom = true, showOptional = true, talentGlow = true, minimized = false,
+  autoSkip = true, useTomTom = true, showOptional = true, talentGlow = true,
   gearAdvisor = true, rewardHints = true,
   autoAccept = false, autoTurnIn = false, sellGreys = false, autoRepair = false,
   minimap = { hide = false },
+  -- Tracker layout: density is "standard" or "detailed"; compact collapses it to the next action.
+  density = "standard", compact = false, fontScale = 1.0, bgAlpha = 0.90,
+  combatFade = true, instanceHide = true, mouseoverFade = false,
+  suggest = true, quiet = true, colorblind = false, accentGold = false,
 }
 
 ns.player = {}
@@ -17,9 +21,18 @@ ns.logIDs = {}         -- questID -> title (in quest log)
 ns.talents = { byName = {}, tabs = {}, total = 0 }
 ns.profs = {}
 
+-- Step and plan state is worked out many times per refresh (progress bar, current step,
+-- next-step preview, suggestions, the Route tab). It is cached per "generation": anything
+-- that can change it calls ns.Invalidate(), and every Refresh starts a new generation. The
+-- cache is also keyed on the frame time, so a missed Invalidate can never outlive a frame.
+ns.gen = 0
+function ns.Invalidate() ns.gen = ns.gen + 1 end
+function ns.MemoKey() return ns.gen .. ":" .. tostring(GetTime and GetTime() or 0) end
+
 local listeners = {}
 function ns.On(name, fn) listeners[name] = listeners[name] or {}; table.insert(listeners[name], fn) end
 function ns.Fire(name, ...)
+  if name == "Refresh" or name == "SettingsChanged" then ns.Invalidate() end
   for _, fn in ipairs(listeners[name] or {}) do
     local ok, err = pcall(fn, ...)
     if not ok then geterrorhandler()(err) end
@@ -99,8 +112,22 @@ function ns.IsQuestActive(q)
   return (id and ns.logIDs[id]) or (name and ns.activeQuests[name]) or false
 end
 
--- Returns nil (not done) or one of "done", "skipped", "outleveled".
+local stateMemo, stateKey = {}, nil
+local ComputeState
+
+-- Returns nil (not done) or one of "done", "skipped", "outleveled", "behind".
+-- "behind" is a class quest or mount step left 8+ levels behind: it stops holding up the
+-- route (someone who installs the guide at 50 shouldn't be parked on a level-10 quest)
+-- but stays on the list as a reminder, since those rewards matter at any level.
 function ns.StepState(step)
+  local key = ns.MemoKey()
+  if stateKey ~= key then wipe(stateMemo); stateKey = key end
+  local m = stateMemo[step]
+  if m == nil then m = ComputeState(step) or false; stateMemo[step] = m end
+  return m or nil
+end
+
+ComputeState = function(step)
   local c = ns.char
   if c.done[step.id] then return "done" end
   if c.skip[step.id] then return "skipped" end
@@ -123,9 +150,13 @@ function ns.StepState(step)
     local plan, first = ns.PlanProgress(step)
     if plan and #plan > 0 and not first then return "done" end
   end
-  if ns.db.autoSkip and step.max and level > step.max + 3 and step.kind ~= "class" and step.kind ~= "mount" then
+  local keep = step.kind == "class" or step.kind == "mount"
+  if ns.db.autoSkip and step.max and level > step.max + 3 and not keep then
     return "outleveled"
   end
+  if ns.db.autoSkip and step.max and keep and level > step.max + 8 then return "behind" end
+  -- Put off by a jump ahead: still open, but not holding up the route.
+  if keep and c.defer and c.defer[step.id] then return "behind" end
   return nil
 end
 
@@ -141,7 +172,8 @@ function ns.Progress()
   for _, step in ipairs(ns.route) do
     if not step.optional then
       total = total + 1
-      if ns.StepState(step) then done = done + 1 end
+      local st = ns.StepState(step)
+      if st and st ~= "behind" then done = done + 1 end
     end
   end
   return done, total
@@ -160,19 +192,33 @@ function ns.SetView(i)
 end
 
 function ns.ToggleDone(step)
-  if ns.char.done[step.id] or ns.char.skip[step.id] then
-    ns.char.done[step.id], ns.char.skip[step.id] = nil, nil
+  local c = ns.char
+  if c.done[step.id] or c.skip[step.id] then
+    c.done[step.id], c.skip[step.id] = nil, nil
   else
-    ns.char.done[step.id] = true
+    c.done[step.id] = true
   end
-  ns.char.view = nil
+  if c.defer then c.defer[step.id] = nil end
+  c.view = nil
+  ns.Invalidate()
   ns.Fire("Refresh")
 end
 
 function ns.Skip(step)
   ns.char.skip[step.id] = true
+  if ns.char.defer then ns.char.defer[step.id] = nil end
   ns.char.view = nil
+  ns.Invalidate()
   ns.Fire("Refresh")
+end
+
+-- Class quests and mount steps the character has left behind (see StepState).
+function ns.StillOpen()
+  local out = {}
+  for i, step in ipairs(ns.route) do
+    if ns.StepState(step) == "behind" then out[#out + 1] = i end
+  end
+  return out
 end
 
 -- Tips for the current level band (gold / extras / professions).
@@ -185,6 +231,7 @@ function ns.TipsForLevel(level)
 end
 
 local function ScanQuestLog()
+  ns.Invalidate()
   wipe(ns.activeQuests); wipe(ns.logIDs)
   local num = (GetNumQuestLogEntries and GetNumQuestLogEntries())
            or (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetNumQuestLogEntries()) or 0
@@ -581,6 +628,11 @@ events:SetScript("OnEvent", function(_, event, ...)
       local c = CoffeyGuideCharDB
       c.done, c.skip, c.questNames, c.plan = c.done or {}, c.skip or {}, c.questNames or {}, c.plan or {}
       if CoffeyGuideDB.useQuestie == nil then CoffeyGuideDB.useQuestie = true end
+      -- 3.1.0: "minimized" became the compact tracker.
+      if CoffeyGuideDB.minimized ~= nil then
+        CoffeyGuideDB.compact = CoffeyGuideDB.minimized and true or false
+        CoffeyGuideDB.minimized = nil
+      end
       ns.db, ns.char = CoffeyGuideDB, CoffeyGuideCharDB
     end
     ns.Fire("AddonLoaded", name)
@@ -593,8 +645,12 @@ events:SetScript("OnEvent", function(_, event, ...)
     ns.ScanProfessions()
     ns.Fire("Login")
     ns.Fire("Refresh")
-    Print(("%s %s %s detected - %d route steps. /cguide to toggle, /cguide guide for the full guide.")
-      :format(ns.player.raceName or "?", ns.player.className or "?", ns.player.faction or "", #ns.route))
+    -- Say hello once per character; after that only when quiet mode is off.
+    if not ns.char.greeted or not ns.db.quiet then
+      Print(("%s %s %s detected - %d route steps. /cguide to toggle, /cguide guide for the full guide.")
+        :format(ns.player.raceName or "?", ns.player.className or "?", ns.player.faction or "", #ns.route))
+      ns.char.greeted = true
+    end
 
   elseif event == "PLAYER_ENTERING_WORLD" then
     ns.ScanTalents()
@@ -613,6 +669,7 @@ events:SetScript("OnEvent", function(_, event, ...)
     local level = ...
     local before = ns.CurrentIndex()
     ns.player.level = level
+    ns.Invalidate()
     ns.ScanTalents()
     ns.char.view = nil
     ns.Fire("LevelUp", level, before)
@@ -627,6 +684,7 @@ events:SetScript("OnEvent", function(_, event, ...)
     local title = TitleForQuest(id)
     local before = ns.CurrentIndex()
     if title then ns.char.questNames[title] = true end
+    ns.Invalidate()
     ns.Fire("QuestTurnedIn", id, title)
     C_Timer.After(0.5, function()
       ScanQuestLog()
@@ -646,6 +704,36 @@ events:SetScript("OnEvent", function(_, event, ...)
   end
 end)
 
+-- Clear this character's guide progress. Quest history comes from the game, so steps
+-- you have really finished tick themselves off again; manual marks and skips are gone.
+function ns.ResetProgress()
+  local c = ns.char
+  wipe(c.done); wipe(c.skip); wipe(c.questNames); wipe(c.plan)
+  c.view, c.lastJump, c.defer = nil, nil, nil
+  ns.Invalidate()
+  Print("progress reset."); ns.Fire("Refresh")
+end
+
+-- Check off the current quest-plan objective (key binding and /cguide check).
+function ns.CheckCurrent()
+  local step = ns.route[ns.ViewIndex()]
+  if not step then return end
+  local plan, first = ns.PlanProgress(step)
+  if plan and first then ns.MarkSub(step, plan[first], true)
+  elseif not ns.StepState(step) then ns.ToggleDone(step) end
+end
+
+function CoffeyGuide_Binding(action)
+  if not ns.char then return end
+  if action == "toggle" then ns.Fire("ToggleTracker")
+  elseif action == "guide" then ns.Fire("OpenGuide")
+  elseif action == "check" then ns.CheckCurrent()
+  elseif action == "next" then ns.SetView(ns.ViewIndex() + 1)
+  elseif action == "prev" then ns.SetView(ns.ViewIndex() - 1)
+  elseif action == "waypoint" then ns.Fire("WaypointCurrent")
+  elseif action == "compact" then ns.Fire("ToggleCompact") end
+end
+
 ---------------------------------------------------------------------------
 -- Slash commands
 ---------------------------------------------------------------------------
@@ -664,15 +752,18 @@ SlashCmdList.COFFEYGUIDE = function(msg)
   elseif msg == "sync" then ns.SyncHistory(true)
   elseif msg == "wp" or msg == "way" then ns.Fire("SetWaypoints", ns.route[ns.ViewIndex()], true)
   elseif msg == "reset" then
-    wipe(ns.char.done); wipe(ns.char.skip); wipe(ns.char.questNames); ns.char.view = nil
-    Print("progress reset."); ns.Fire("Refresh")
+    ns.ResetProgress()
   elseif msg == "resetpos" then
     ns.char.pos = nil; ns.Fire("ResetPosition")
   elseif msg == "talentdebug" then ns.TalentDebug()
+  elseif msg == "welcome" then ns.Fire("ShowWelcome", true)
+  elseif msg == "compact" then ns.Fire("ToggleCompact")
+  elseif msg == "check" then ns.CheckCurrent()
   elseif msg == "support" or msg == "donate" then
     Print("Coffey's Leveling Guide is free. To support Coffey Labs: " .. ns.SUPPORT); ns.ShowLink(ns.SUPPORT)
   else
     Print("/cguide - show/hide tracker   /cguide guide | talents | spec | gear | prof | quests | gold | dungeons | settings")
-    Print("/cguide next | prev   /cguide wp - waypoints for this step   /cguide sync   /cguide reset   /cguide resetpos   /cguide talentdebug   /cguide support")
+    Print("/cguide next | prev | check | compact   /cguide wp - waypoints for this step   /cguide sync   /cguide welcome")
+    Print("/cguide reset   /cguide resetpos   /cguide talentdebug   /cguide support")
   end
 end

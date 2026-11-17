@@ -1,7 +1,7 @@
 ## Interface: 16001
 ## Title: Coffey's Leveling Guide
 ## Notes: Leveling guide for WoW Forever: route for every race/class, talents, spec guides, gear & pre-raid BiS, professions, gold and extras. /cguide
-## Version: 3.0.1
+## Version: 3.1.0
 ## Author: Coffey Labs LLC
 ## X-Website: https://coffeylabs.org
 ## X-Copyright: Copyright (c) 2026 Coffey Labs LLC
@@ -45,6 +45,7 @@ Data\plans_alliance_48_60.lua
 
 Core.lua
 Plans.lua
+Detect.lua
 History.lua
 Waypoints.lua
 Gear.lua
@@ -53,3 +54,4 @@ UI\Widgets.lua
 UI\Tracker.lua
 UI\Guide.lua
 UI\Extras.lua
+UI\Welcome.lua

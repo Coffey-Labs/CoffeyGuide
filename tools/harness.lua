@@ -45,6 +45,7 @@ UIParent = mock("UIParent")
 GameTooltip = mock("GameTooltip")
 DEFAULT_CHAT_FRAME = { AddMessage = function(_, m) print("CHAT", (m:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""))) end }
 UISpecialFrames = {}
+StaticPopupDialogs = {}
 tinsert = table.insert
 function wipe(t) for k in pairs(t) do t[k] = nil end return t end
 function geterrorhandler() return function(e) error(e, 0) end end
@@ -289,4 +290,67 @@ if sp and ns.PlanFor(sp) then
 end
 SlashCmdList.COFFEYGUIDE("quests")
 ns.ShowLink(ns.WEBSITE); print("website:", ns.WEBSITE)
+
+-- Progress detection: quests from a later step in the log, standing in its zone.
+SlashCmdList.COFFEYGUIDE("reset")
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+fire("QUEST_LOG_UPDATE")
+local cur0 = ns.CurrentIndex()
+local target
+for i = cur0 + 2, math.min(#ns.route, cur0 + 12) do
+  local st = ns.route[i]
+  local plan = ns.PlanFor(st)
+  if st.kind == "zone" and not st.optional and plan and #plan >= 6 and (st.min or 1) <= P.level + 2
+     and not ns.StepState(st) then target = i; break end
+end
+if target then
+  local st = ns.route[target]
+  local seen, log = {}, {}
+  for _, s in ipairs(ns.PlanFor(st)) do
+    if s.quest and s.quest[2] and not seen[s.quest[2]] and #log < 3 then seen[s.quest[2]] = true; log[#log + 1] = { s.quest[1], s.quest[2] } end
+  end
+  questLog = log; fire("QUEST_LOG_UPDATE")
+  C_Map = { GetBestMapForUnit = function() return st.map end, GetMapInfo = function() return nil end }
+  ns.Detect.Invalidate()
+  local i, sst, reason = ns.Detect.Suggestion()
+  print("detect: current", cur0, "target", target, "suggested", i, reason)
+  assert(i == target, "suggestion should point at the step whose quests are in the log")
+  ns.Fire("Refresh") -- tracker renders the banner
+  ns.Detect.JumpTo(i)
+  print("detect: after jump current", ns.CurrentIndex(), "skipped", #ns.char.lastJump.ids)
+  assert(ns.CurrentIndex() == target, "jump should land on the target")
+  ns.Fire("Refresh")
+  ns.Detect.UndoJump()
+  print("detect: after undo current", ns.CurrentIndex())
+  assert(ns.CurrentIndex() == cur0, "undo should restore the original current step")
+  -- Missed: the first quest of the plan untouched, three later quests in the log.
+  local plan = ns.PlanFor(st)
+  local firstKey, firstName, nLater = nil, nil, 0
+  questLog = {}
+  local inLog = {}
+  for _, s in ipairs(plan) do
+    if s.quest and s.quest[2] then
+      if not firstKey then firstKey, firstName = s.quest[2], s.quest[1]
+      elseif s.quest[2] ~= firstKey and s.quest[1] ~= firstName and not inLog[s.quest[2]] and nLater < 3 then
+        inLog[s.quest[2]] = true; nLater = nLater + 1
+        questLog[#questLog + 1] = { s.quest[1], s.quest[2] }
+      end
+    end
+  end
+  fire("QUEST_LOG_UPDATE")
+  local _, first, _, missed = ns.PlanProgress(st)
+  local firstIdx; for k, s in ipairs(plan) do if s.quest and s.quest[2] == firstKey then firstIdx = k; break end end
+  print("detect: first quest at", firstIdx, "missed:", missed[firstIdx] and "yes" or "no", "cursor at", first, "passed by", ns.MissedCount(missed))
+  assert(missed[firstIdx], "an untouched quest before three active ones should count as passed by")
+  ns.Fire("Refresh")
+  ns.db.compact = true; ns.Fire("Refresh"); ns.db.density = "detailed"; ns.db.compact = false; ns.Fire("Refresh")
+  ns.Fire("ShowWelcome", true)
+  C_Map = nil
+else
+  print("detect: no later zone step with a plan for this character; skipped")
+end
+CoffeyGuide_Binding("check"); CoffeyGuide_Binding("compact"); CoffeyGuide_Binding("waypoint")
+ns.db.colorblind = true; ns.db.accentGold = true; ns.Fire("SettingsChanged")
+SlashCmdList.COFFEYGUIDE("settings"); g_search = _G.CoffeyGuideSearch
+if g_search then g_search._text = "a"; SlashCmdList.COFFEYGUIDE("guide") end
 print("HARNESS_OK")
