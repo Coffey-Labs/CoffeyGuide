@@ -445,7 +445,7 @@ ns.SPECGUIDES.PRIEST["Holy"] = {
 ns.SPECGUIDES.PRIEST["Shadow Magic"] = {
   role = "Caster DPS",
   best = { leveling = true, dungeons = false, raid = false, pvp = false },
-  summary = "DoT caster: Shadowform, Mind Flay, Devouring Plague (baseline at 20), Shadow Word: Death (32) and Vampiric Embrace group healing. Recommended leveling spec (17/3/31).",
+  summary = "DoT caster: Shadowform, Mind Flay, Devouring Plague (baseline at 20), Shadow Word: Death (32) and Vampiric Embrace self-healing. Recommended leveling spec (17/3/31).",
   stats = "Hit (17%) > Spell Power > Crit > Spell Penetration > Spirit",
   rotation = {
     "Pre-cast Fade, then Mind Blast into the pull",
@@ -453,7 +453,7 @@ ns.SPECGUIDES.PRIEST["Shadow Magic"] = {
     "Keep Devouring Plague up",
     "Mind Blast on cooldown",
     "Shadow Word: Death on cooldown (backlash if the target survives)",
-    "Keep Vampiric Embrace up for group healing",
+    "Keep Vampiric Embrace up (party heals for 10% of your Shadow damage, you for double)",
     "Mind Flay filler; don't clip it (Improved Mind Flay favors the 3rd tick)",
   },
   aoe = {
@@ -470,6 +470,7 @@ ns.SPECGUIDES.PRIEST["Shadow Magic"] = {
   },
   source = "https://www.warcrafttavern.com/forever/guides/shadow-priest/",
   -- also: https://www.icy-veins.com/wow-forever/shadow-priest-ranged-dps-pve-rotation-cooldowns-abilities , https://wowhandbook.com/classes/priest/leveling/
+  -- Vampiric Embrace 10% (was 20%), caster gets 100% more (Nov 16 notes, live with weekly maintenance): https://us.forums.blizzard.com/en/wow/t/2403040
 }
 
 ---------------------------------------------------------------------------
@@ -480,36 +481,37 @@ ns.SPECGUIDES.SHAMAN = ns.SPECGUIDES.SHAMAN or {}
 ns.SPECGUIDES.SHAMAN["Elemental Combat"] = {
   role = "Caster DPS",
   best = { leveling = false, dungeons = false, raid = false, pvp = false },
-  summary = "Fire and lightning caster: Lava Burst, Flame Shock, Lightning Overload and Fire Nova bursting at your Fire totem. Good AoE and group buffs, but mana can run short.",
+  summary = "Lightning caster: Lightning Bolt and Chain Lightning with Lightning Overload duplicates, Call of Thunder crit and Lightning Mastery bursts, plus Flame Shock. Good AoE and group buffs, but mana can run short.",
   stats = "Spell Power > Hit (17%) > Crit > Intellect > Mp5",
   rotation = {
     "Pre-place totems with Call of the Elements (Searing Totem last)",
-    "Open with Lava Burst, then Flame Shock right away",
-    "Keep Flame Shock up on the target",
-    "Lava Burst on cooldown",
-    "Chain Lightning on Clearcasting or outside Lightning Mastery (mana)",
-    "Lightning Bolt as filler (2.5s cast from rank 4)",
+    "Flame Shock the target; refresh it when it falls off",
+    "Lightning Mastery with trinkets, racials and potions",
+    "Chain Lightning when mana allows (no cooldown during Lightning Mastery)",
+    "Lightning Bolt as filler",
   },
   aoe = {
     "Magma Totem in range; Fire Nova on cooldown (bursts at your Fire totem)",
     "Chain Lightning on cooldown as mana allows",
     "Flame Shock targets that lack it",
-    "Totemic Projection (lvl 22) moves your totems up to 30 yd",
+    "Totemic Call (lvl 22) teleports your totems to you (30s cooldown)",
   },
   tips = {
+    "Lava Burst was removed in beta; Call of Thunder (+5% Lightning crit) took its place",
+    "Lightning Overload: 10/20/30% chance to trigger a duplicate spell",
     "Elemental Focus procs make your next spell free",
     "Water Shield returns mana from crits; Mana Tide Totem for long fights",
     "Windfury Totem is a party buff now and gets you invites",
     "Buff totems last 5 min, weapon imbues 60 min",
   },
-  source = "https://www.warcrafttavern.com/forever/guides/elemental-shaman/",
-  -- also: https://www.icy-veins.com/wow-forever/elemental-shaman-ranged-dps-pve-rotation-cooldowns-abilities
+  source = "https://www.icy-veins.com/wow-forever/elemental-shaman-ranged-dps-pve-rotation-cooldowns-abilities",
+  -- Lava Burst -> Call of Thunder, Lightning Mastery, Totemic Call: https://us.forums.blizzard.com/en/wow/t/2360696 (Nov 3 notes)
 }
 
 ns.SPECGUIDES.SHAMAN["Enhancement"] = {
   role = "Melee DPS",
   best = { leveling = true, dungeons = false, raid = false, pvp = false },
-  summary = "Slow 2H, Stormstrike (damage and mana), Maelstrom Weapon instant Lightning Bolts and Rage of the Farseer. Recommended leveling spec (6/34/11); brings Windfury Totem.",
+  summary = "Slow 2H melee built around Windfury, with Stormstrike (damage and mana), Maelstrom Weapon instant Lightning Bolts and Rage of the Farseer. Recommended leveling spec (6/34/11); brings Windfury Totem.",
   stats = "Weapon DPS > Hit (8%) > Expertise > Strength > Intellect > Spell Power",
   rotation = {
     "Windfury Weapon + Lightning Shield; Call of the Elements for totems",
@@ -528,11 +530,14 @@ ns.SPECGUIDES.SHAMAN["Enhancement"] = {
   tips = {
     "Leveling 10-24: Lightning Shield, Flame Shock + Searing Totem, Earth Shock",
     "Before 30 use Flametongue or Rockbiter; Windfury Weapon from 30",
-    "Since the Nov 12 hotfix Windfury Weapon and Windfury Totem both proc",
-    "Mental Dexterity makes Intellect add Attack Power (nerfed post-launch)",
+    "Since Nov 10 weapon imbues and weapon totems stack: Windfury Weapon and Windfury Totem both proc",
+    "Stormstrike: 100% weapon damage, 8s cooldown (Nov 10)",
+    "Maelstrom Weapon: 20% per stack, procs 6-10 times a minute by rank; melee does most of your damage",
+    "Mental Dexterity turns 33/66/100% of Intellect into Attack Power (was 50/100/150%); Strength first",
   },
   source = "https://www.icy-veins.com/wow-forever/enhancement-shaman-melee-dps-pve-rotation-cooldowns-abilities",
   -- also: https://www.warcrafttavern.com/forever/guides/enhancement-shaman/ , https://wowhandbook.com/classes/shaman/leveling/
+  -- Nov 10 Enhancement changes: https://us.forums.blizzard.com/en/wow/t/2403040
 }
 
 ns.SPECGUIDES.SHAMAN["Restoration"] = {
@@ -663,7 +668,7 @@ ns.SPECGUIDES.WARLOCK = ns.SPECGUIDES.WARLOCK or {}
 ns.SPECGUIDES.WARLOCK["Affliction"] = {
   role = "Caster DPS",
   best = { leveling = true, dungeons = false, raid = false, pvp = false },
-  summary = "DoT spec with the new Wrack channel (other DoTs tick harder), Banes in their own slot and Nightfall procs. The drain-tank build (41/10/0) is the recommended way to level.",
+  summary = "DoT spec with the new Wrack channel (your DoTs tick 100% faster while you channel it), Banes in their own slot and Nightfall procs. The drain-tank build (41/10/0) is the recommended way to level.",
   stats = "Hit (17%) > Spell Power > Crit > Haste > Intellect",
   rotation = {
     "Pre-pull: sacrifice the Imp (Demonic Sacrifice), open with Shadow Bolt",
@@ -672,7 +677,7 @@ ns.SPECGUIDES.WARLOCK["Affliction"] = {
     "Corruption, then Siphon Life",
     "Shadow Bolt only on Shadow Trance (Nightfall) procs",
     "Life Tap under ~40% mana, at the end of a Wrack channel",
-    "Wrack as filler; break it when something above is due",
+    "Wrack (6s channel) between DoT refreshes; break it when something above is due",
   },
   aoe = {
     "2 targets: Corruption (+Agony, Siphon Life if 30s+) on the second via focus macro",
@@ -682,12 +687,14 @@ ns.SPECGUIDES.WARLOCK["Affliction"] = {
   tips = {
     "Life Tap scales with Spirit (424 + Spirit health into mana)",
     "Refresh DoTs as they expire, never early",
+    "Soul Siphon: Drain Life, Drain Soul and Wrack gain 4/8/12% per DoT on the target (max 36%)",
     "Leveling: Corruption everything, wand before 30, then Drain Life tank; Fear the 2nd mob",
     "Pets: Voidwalker 10-19, Succubus/Incubus from 20, Felhunter vs casters",
     "Keep a Limited Invulnerability Potion for Hellfire pulls",
   },
   source = "https://www.warcrafttavern.com/forever/guides/affliction-warlock/",
   -- also: https://www.icy-veins.com/wow-forever/affliction-warlock-ranged-dps-pve-rotation-cooldowns-abilities , https://wowhandbook.com/classes/warlock/leveling/
+  -- Nov 10 Wrack / Soul Siphon changes: https://us.forums.blizzard.com/en/wow/t/2403040 , https://wowhandbook.com/classes/warlock/talents/
 }
 
 ns.SPECGUIDES.WARLOCK["Demonology"] = {
@@ -828,12 +835,14 @@ ns.SPECGUIDES.DRUID["Restoration"] = {
   },
   tips = {
     "Nature's Swiftness + Healing Touch for emergencies",
+    "Wild Growth: 3s cast, can't be cast while moving; healing coefficient doubled to 6.6% (Nov 13)",
     "5-second rule: pause casting to regen when healing isn't needed",
     "Nature's Splendor (Balance) extends your HoTs",
     "Innervate yourself or a high-Spirit healer",
   },
   source = "https://www.icy-veins.com/wow-forever/restoration-druid-healer-pve-rotation-cooldowns-abilities",
   -- also: https://www.warcrafttavern.com/forever/guides/restoration-druid/
+  -- Wild Growth coefficient / no casting while moving (Nov 13): https://us.forums.blizzard.com/en/wow/t/2403040
 }
 
 ---------------------------------------------------------------------------

@@ -146,7 +146,7 @@ ns.AddSteps{
 
   { id = "g_quest_gold_48", min = 48, max = 60, kind = "gold",
     title = "Quest gold from level 48",
-    text = "Nov 10 hotfix: most quests level 48+ now reward extra gold. XP-to-gold at 60 is removed, so do NOT hoard completed quests for 60 - turn them in as you go. Repeatables and item-reward quests unchanged.",
+    text = "Nov 10 hotfix: most quests level 48+ now reward extra gold. XP-to-gold at 60 is removed, so do NOT hoard completed quests for 60 - turn them in as you go. Repeatables, trivial quests and item-reward quests unchanged.",
     source = WT .. "/news/more-gold-from-quests-above-level-48-in-wow-forever/" },
 
   { id = "g_band_50_60", min = 48, max = 60, kind = "gold", optional = true,
@@ -325,7 +325,8 @@ ns.AddSteps{
 
   { id = "x_dungeon_xp", min = 13, max = 60, kind = "extra", optional = true,
     title = "Dungeons vs questing",
-    text = "Oct 1: dungeon quests give 50% less bonus XP. Nov 8: dungeon kill XP +50%. Run dungeons with their quests in hand and compare the trip with nearby questing. Mobs gray to any party member give nobody XP.",
+    text = "Oct 1: dungeon quests give 50% less bonus XP. Nov 9: dungeon kill XP +50%. Run dungeons with their quests in hand and compare the trip with nearby questing. Nov 13: a mob gray to any party member gives the whole party 0 XP, so don't run with a much higher-level friend.",
+    -- Nov 9 / Nov 13 dates: https://us.forums.blizzard.com/en/wow/t/2403040
     source = WT .. "/news/experience-from-dungeon-kills-increased-in-wow-forever/" },
 
   { id = "x_group_finder", min = 13, max = 60, kind = "extra", optional = true,

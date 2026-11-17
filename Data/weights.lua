@@ -171,10 +171,13 @@ ns.WEIGHTS.SHAMAN["Elemental Combat"] = {
 }
 ns.WEIGHTS.SHAMAN["Enhancement"] = {
   -- derived from priority: slow 2H weapon > Str (2 AP) > Int (1 AP + mana + spell crit) > Agi; SP worth half
-  leveling = { STR = 1.0, AGI = 0.55, STA = 0.6, INT = 0.85, SPI = 0.2, AP = 0.5, SP = 0.5, HIT = 9.0, CRIT = 11.0, MP5 = 0.6, DPS = 7.5, ARMOR = 0.01 },
+  -- INT: scaled by the same ratio as endgame below for the Nov 10 Mental Dexterity nerf: 0.85 x 0.68 / 0.9 = 0.64
+  leveling = { STR = 1.0, AGI = 0.55, STA = 0.6, INT = 0.64, SPI = 0.2, AP = 0.5, SP = 0.5, HIT = 9.0, CRIT = 11.0, MP5 = 0.6, DPS = 7.5, ARMOR = 0.01 },
   -- wowhandbook Enhancement weights (AP = 1 in source); Forever: Mental Dexterity turns Intellect into Attack Power; normalised STR = 1.0 (source STR = 2.2)
-  -- SP added: 'spell power is worth half as much' (wowhandbook leveling) / icy-veins #5 after Int
-  endgame  = { STR = 1.0, AGI = 0.6, STA = 0.18, INT = 0.9, AP = 0.45, SP = 0.5, HIT = 23.64, CRIT = 15.4, DPS = 6.36 },
+  -- INT: source still lists Int 1.99 (client 70938, read as the pre-Nov 10 1.5 AP per Int); Mental Dexterity 3/3 now gives 1 AP per Int, so
+  --   1.99 - 0.5 AP = 1.49 -> 1.49 / 2.2 = 0.68 (Nov 10: https://us.forums.blizzard.com/en/wow/t/2403040)
+  -- SP added: 'spell power is worth half as much' (wowhandbook leveling, still stated after Nov 10) / icy-veins #5 after Int
+  endgame  = { STR = 1.0, AGI = 0.6, STA = 0.18, INT = 0.68, AP = 0.45, SP = 0.5, HIT = 23.64, CRIT = 15.4, DPS = 6.36 },
   source = "https://wowhandbook.com/classes/shaman/stat-priority/",
   -- leveling sources: https://wowhandbook.com/classes/shaman/leveling/, https://www.icy-veins.com/wow-forever/enhancement-shaman-leveling
 }
