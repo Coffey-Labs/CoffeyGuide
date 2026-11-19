@@ -318,7 +318,7 @@ ns.AddSteps{
 
   { id = "x_sleepingbag_2", min = 32, max = 60, kind = "extra", optional = true,
     title = "Cozy Sleeping Bag 2/2",
-    text = "Finish the chain: Carved Figurine on the Stonewrought Dam heads (Wetlands side), then the Messenger Bag at Thoradin's Wall - climb the fallen cart (Hillsbrad side). Satchel underneath gives the Cozy Sleeping Bag.",
+    text = "Finish the chain: Carved Figurine on the Stonewrought Dam heads (Wetlands side), then the Messenger Bag at Thoradin's Wall - climb the fallen cart (Hillsbrad side). Satchel underneath gives the Cozy Sleeping Bag. Since Nov 17 its area also counts as Resting.",
     quests = { { "Wet Job", 79974 }, { "Eagle's Fist", 79975 }, { "This Must Be The Place", 79976 } },
     wp = { { 1432, 49.4, 12.9, "Carved Figurine" }, { 1424, 88.0, 47.1, "Fallen cart" }, { 1424, 85.7, 52.2, "Messenger Bag" } },
     source = WH .. "/news/cozy-sleeping-bag-in-wow-forever/" },
@@ -336,7 +336,7 @@ ns.AddSteps{
 
   { id = "x_world_buffs", min = 1, max = 60, kind = "extra", optional = true,
     title = "World buffs while leveling",
-    text = "Rend's head (UBRS) gives Warchief's Blessing / Might of Stormwind. Since Nov 12 heralds also reach the Crossroads and Razor Hill (Horde) and Goldshire, Lakeshire and Sentinel Hill (Alliance). Buffs no longer work in raids.",
+    text = "Rend's head (UBRS) gives Warchief's Blessing / Might of Stormwind. Since Nov 12 heralds also reach the Crossroads and Razor Hill (Horde) and Goldshire, Lakeshire and Sentinel Hill (Alliance). Buffs no longer work in raids and, since Nov 17, always drop on death.",
     source = WT .. "/news/forever-world-buffs-now-provided-in-razor-hill-goldshire-lakeshire-sentinel-hill/" },
 
   { id = "x_travel", min = 1, max = 60, kind = "extra", optional = true,
@@ -388,7 +388,7 @@ ns.AddSteps{
 
   { id = "x_ubrs_seal", min = 57, max = 60, kind = "extra", optional = true,
     title = "UBRS key: Seal of Ascension",
-    text = "Inside LBRS, Vaelan wants the three gemstones (Omokk, Voone, Wyrmthalak) + Unadorned Seal (trash drop). Forge it at Emberstrife in Dustwallow's Wyrmbog. One holder opens UBRS for the group.",
+    text = "Inside LBRS, Vaelan wants the three gemstones (Omokk, Voone, Wyrmthalak) + Unadorned Seal (trash drop). Forge it at Emberstrife in Dustwallow's Wyrmbog. One holder opens UBRS for the group. Since Nov 17 UBRS is back to full strength: bring a full group.",
     quests = { { "Seal of Ascension", 4742 }, { "Seal of Ascension", 4743 } },
     source = WM .. "/guides/dungeon-keys-and-attunements" },
 

@@ -698,4 +698,5 @@ ns.AddQuestPlan("h_shendralas", {
   { act = "turnin", quest = { "Tempered Expectations", 96060 }, npc = "Vindael", wp = { 2652, 42.2, 78.6, "Vindael" } },
   { act = "turnin", quest = { "Word of the Woods", 93594 }, npc = "Woodwyrd", wp = { 2652, 69.4, 71.8, "Woodwyrd" } },
   { act = "note",   text = "Woodwyrd's Rot and Regret is a Maraudon quest; Passing the Blame and Agamaggan's Blood follow it." },
+  { act = "note",   text = "Since Nov 17 Agamaggan's Blood is no longer a dungeon quest: do it at the elites outside Razorfen Downs." },
 })
