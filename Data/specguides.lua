@@ -199,6 +199,7 @@ ns.SPECGUIDES.PALADIN["Retribution"] = {
     "Keep Retribution Aura and Blessing of Might up while leveling",
     "Slowest 2H you can (3.3+); after 40 Intellect adds spell power (Champion of the Light)",
     "Fast weapon (2.9 or faster) reverses the Unsealed Wrath seal swap",
+    "Two-Handed Weapon Specialization boosts all your Holy damage while a 2H is equipped (Nov 19)",
     "Divine Shield now halves your damage; Undead Cannibalize also restores mana",
   },
   source = "https://www.icy-veins.com/wow-forever/retribution-paladin-melee-dps-pve-rotation-cooldowns-abilities",

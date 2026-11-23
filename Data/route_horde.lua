@@ -239,7 +239,7 @@ ns.AddSteps{
     title = "Excavation Site: Wetlands", zone = "Wetlands", map = 1437, kind = "dungeon",
     text = "New dungeon (26-33): blue mist portal under a big tree in the hills SE of Whelgar's Excavation, reached from Thelgen Rock. Horde quests: Borstan (The Drag, Orgrimmar), Bashana Runetotem (Thunder Bluff), Deathstalker Agent outside.",
     faction = "Horde", optional = true, any = true,
-    quests = { { "Changing Tastes", 95682 }, { "Earthen Echo", 98823 }, { "Open the Maw", 391 } },
+    quests = { { "Changing Tastes", 95697 }, { "Earthen Echo", 98823 }, { "Open the Maw", 95682 } },
     wp = { { 1437, 47.7, 56.2, "Excavation Site entrance" } },
     source = FDJ },
 
