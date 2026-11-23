@@ -193,7 +193,7 @@ ns.AddSteps{
   { id = "m_riding_skyborne", min = 40, max = 60, kind = "mount", races = { "Skyborne" }, classes = SEVEN,
     zone = "Zephras Isle", map = 2521,
     title = "Riding 40: Zephras (Skyborne)",
-    text = "Genn Fairweather at Fairweather Stables trains riding and sells Galestriders (both factions). 100g incl. mount. Reported Nov 13: Skyborne riding gets no Honored discount.",
+    text = "Genn Fairweather at Fairweather Stables trains riding and sells Galestriders (both factions). 100g incl. mount. Skyborne get the Honored 10% discount on Apprentice and Journeyman Riding (fixed Nov 19).",
     wp = { { 2521, 53.8, 81.3, "Genn Fairweather" } },
     source = WT .. "/guides/riding/" },
 

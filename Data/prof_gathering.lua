@@ -40,7 +40,7 @@ ns.PROFESSIONS["Herbalism"] = {
   recipes = {
     "Camp: Incense Candle (skill 20, trainer) - Intellect buff, no stack with Arcane Intellect",
     "Camp: Greenhouse (skill 140, Blueprint) - grows herbs from seeds + candle buff",
-    "Camp: Seed Hybridizer (skill 300, Blueprint) - multiplies/combines herb seeds",
+    "Camp: Seed Hybridizer (skill 300, Blueprint) - multiplies/combines herb seeds; combining can fail (Nov 19), Scarce Herb Seeds not accepted",
     "Goldthorn Tea (Cooking) +15 Herbalism for 15 min; Herbalist's Gloves +5 (LW 135); Enchant Gloves - Herbalism +2 / Advanced +5",
     "Apothecary Gloves +2 (Horde Serpentbloom quest, Wailing Caverns)",
     "Graverobber's Shovel (Dextren Ward, The Stockade): 10 charges, gathers Grave Moss without Herbalism",
@@ -98,6 +98,7 @@ ns.PROFESSIONS["Mining"] = {
     "Smelt Copper 1 / Tin 65 / Bronze 65 / Silver 75 / Iron 125 / Gold 155 / Steel 165 / Mithril 175 / Truesilver 230 / Thorium 250 (trainer)",
     "Smelt Dark Iron 230 (8 Dark Iron Ore, not trainer-taught; Black Forge, Blackrock Depths)", -- unverified: classic (location/source of the recipe)
     "NEW Smelt Azerothium 275 (trainer): 2 Pitchblende + 1 Coal",
+    "Summit of Eternity (Mount Hyjal): Toron Rockhoof's forge and anvil work again (Nov 20) for smelting and Blacksmithing",
     "NEW Smelt Heavy Thorium 300 (trainer): Heavy Thorium Ore -> Heavy Thorium Bar (id 251291), needs a Molten Foundry",
     "Camp: Lodestone (skill 20, trainer) - melee AP, no stack with Blessing of Might",
     "Camp: Rock Garden (140, Blueprint) - grows a common ore node; Molten Foundry (300, Blueprint) - high-end smelting station",

@@ -555,9 +555,9 @@ ns.AddSteps{
 
   { id = "c_pri_ud20", min = 20, max = 20, title = "Priest: Devouring Plague",
     zone = "Undercity", map = UC, kind = "class",
-    text = "Speak to Aelthalyste in Undercity for Devouring Plague.",
+    text = "Speak to Aelthalyste in Undercity for Dark Sacrifice (Devouring Plague).",
     races = { "Scourge" }, classes = { "PRIEST" },
-    quests = { { "Devouring Plague", 5679 } },
+    quests = { { "Dark Sacrifice", 5679 } },
     wp = { { UC, 49.3, 17.1, "Aelthalyste" } },
     source = WH .. "priest/quests/" },
 
