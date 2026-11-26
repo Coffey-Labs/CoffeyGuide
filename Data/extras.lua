@@ -359,7 +359,7 @@ ns.AddSteps{
     title = "City of Dalaran access",
     text = "New dungeon. Emissary Jacques in Southshore: An Alarming Request > Image of Archmage Modera at Lordamere Lake. Heart of Disruption gives the Dalaran Sewer Key (Kirin Tor rep).",
     quests = { { "An Alarming Request", 92432 }, { "Heart of Disruption", 92458 } },
-    wp = { { 1424, 48.4, 60.2, "Emissary Jacques" }, { 1416, 7.7, 58.8, "Image of Archmage Modera" } },
+    wp = { { 1424, 48.4, 60.2, "Emissary Jacques" }, { 1421, 68.5, 45.2, "Image of Archmage Modera" } },
     source = WH .. "/zones/dungeons/city-of-dalaran/" },
 
   { id = "x_dalaran_h", min = 30, max = 40, kind = "extra", optional = true, faction = "Horde",
