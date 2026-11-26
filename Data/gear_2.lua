@@ -24,7 +24,7 @@ ns.AddGear("SHAMAN", "Elemental", {
   { phase = "prebis", slot = "Trinket2", item = "Smolderweb's Eye", id = 13213, source = "Drop: Mother Smolderweb, Lower Blackrock Spire", alt = { { "Cannonball Runner", 13382 } } },
   { phase = "prebis", slot = "MainHand", item = "Verimonde's Last Resort", id = 22688, source = "Quest: Superior Armaments of Battle - Friend of the Dawn (Eastern Plaguelands)", alt = { { "Witchblade", 13964 }, { "Blood-Etched Blade", 11922 } } },
   { phase = "prebis", slot = "OffHand", item = "Spirit of Aquementas", id = 11904, source = "Quest: It's Dangerous to Go Alone (Un'Goro Crater)", alt = { { "Tome of the Lost", 22253 }, { "Evergreen Shield", 279262 } } },
-  { phase = "prebis", slot = "Totem", item = "Totem of Charged Flames", id = 263412, source = "Quest: Call of Fire", alt = { { "Totem of the Storm", 272432 }, { "Totem of Thunder", 228176 } } },
+  { phase = "prebis", slot = "Totem", item = "Totem of Charged Flames", id = 263412, source = "Quest: Call of Fire", alt = { { "Totem of the Maelstrom", 272432 }, { "Totem of Thunder", 228176 } } },
   -- Level 20 leveling sheet
   { phase = 20, slot = "Wrist", item = "Witherbite Bracers", id = 271202, source = "Drop: Witherfang, Ruins of Lordaeron" },
   { phase = 20, slot = "Waist", item = "Tuskwrap Belt", id = 271210, source = "Drop: Bjork, Ruins of Lordaeron" },
@@ -80,7 +80,7 @@ ns.AddGear("SHAMAN", "Enhancement", {
   { phase = "prebis", slot = "Trinket1", item = "Smolderweb's Eye", id = 13213, source = "Drop: Mother Smolderweb, Lower Blackrock Spire", alt = { { "Cannonball Runner", 13382 } } },
   { phase = "prebis", slot = "Trinket2", item = "Frozen Heart of the Mountain", id = 249469, source = "Crafted: Enchanting 285 (BoP, crafter only)" },
   { phase = "prebis", slot = "Two-Hand", item = "Fist of Cenarius", id = 21188, source = "Quest: Champion's Battlegear (Silithus)", alt = { { "Forest Defender's Axe", 279260 }, { "Arcanite Reaper", 12784 } } },
-  { phase = "prebis", slot = "Totem", item = "Totem of Charged Flames", id = 263412, source = "Quest: Call of Fire", alt = { { "Totem of the Storm", 272432 }, { "Totem of Thunder", 228176 } } },
+  { phase = "prebis", slot = "Totem", item = "Totem of Charged Flames", id = 263412, source = "Quest: Call of Fire", alt = { { "Totem of the Maelstrom", 272432 }, { "Totem of Thunder", 228176 } } },
   -- Level 20 leveling sheet
   { phase = 20, slot = "Shoulder", item = "Serpent's Shoulders", id = 5404, source = "Drop: Lady Anacondra, Wailing Caverns", faction = "Alliance" },
   { phase = 20, slot = "Shoulder", item = "Tanned Shoulderpads", id = 270023, source = "Quest: Deathstalkers in Shadowfang (Shadowfang Keep)", faction = "Horde" },

@@ -779,7 +779,9 @@ ns.SPECGUIDES.DRUID["Balance"] = {
     "5+ targets: channel Hurricane",
   },
   tips = {
-    "Improved Wrath and Moonglow keep you out of mana trouble",
+    "Moonglow keeps you out of mana trouble; Starlight Wrath (was Improved Wrath) also speeds up Starfire",
+    "Since Nov 25: Eclipse adds Wrath crit, Moonkin Form adds 10% Arcane and Nature damage, Dreamstate replaces Moonfury",
+    "Improved Starfire is now 2 points; 3+ points were refunded, so check your talents",
     "Moonkin Form doubles Omen of Clarity procs and buffs raid spell crit",
     "Innervate a high-Spirit target; Rebirth is the only battle res",
     "Tranquility for heavy party-wide damage",

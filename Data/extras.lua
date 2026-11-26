@@ -255,19 +255,19 @@ ns.AddSteps{
   { id = "m_paladin_charger_a", min = 60, max = 60, kind = "mount", optional = true, faction = "Alliance", classes = { "PALADIN" },
     zone = "Stormwind City", map = 1453,
     title = "Charger chain (60)",
-    text = "Epic class mount instead of 1000g riding: Duthorian Rall sends you to Lord Grayson Shadowbreaker. Long chain with dungeon runs and costly reagents.",
+    text = "Epic class mount instead of 1000g riding: Duthorian Rall sends you to Lord Grayson Shadowbreaker. Long chain with dungeon runs and costly reagents. Since Nov 25, finishing Judgment and Redemption also teaches Journeyman Riding; if you finished it earlier, Lord Grayson Shadowbreaker teaches it free.",
     wp = { { 1453, 50.5, 47.5, "Duthorian Rall" }, { 1453, 49.4, 47.6, "Lord Grayson Shadowbreaker" } },
     source = WH .. "/classes/paladin/quests/" },
 
   { id = "m_paladin_charger_h", min = 60, max = 60, kind = "mount", optional = true, faction = "Horde", classes = { "PALADIN" },
     title = "Forsaken Charger (60)",
-    text = "Forsaken Paladins earn Summon Forsaken Charger via their own level-60 chain (dungeons + materials). Steps not confirmed by guides yet.",
+    text = "Forsaken Paladins earn Summon Forsaken Charger via their own level-60 chain (dungeons + materials). Since Nov 25, finishing Justice and Retribution also teaches Journeyman Riding; if you finished it earlier, Danitha Morr at Bandarion Keep teaches it free. Steps not confirmed by guides yet.",
     source = WH .. "/gold/" },
 
   { id = "m_warlock_dreadsteed", min = 60, max = 60, kind = "mount", optional = true, classes = { "WARLOCK" },
     zone = "Burning Steppes", map = 1428,
     title = "Dreadsteed chain (60)",
-    text = "Epic class mount instead of 1000g riding: start with Mor'zul Bloodbringer in Burning Steppes. Long chain with dungeon runs and reagents, ending in Dire Maul.",
+    text = "Epic class mount instead of 1000g riding: start with Mor'zul Bloodbringer in Burning Steppes. Long chain with dungeon runs and reagents, ending in Dire Maul. Since Nov 25 it also teaches Journeyman Riding; if you finished it earlier, Zevrost (Orgrimmar) or Ursula Deline (Stormwind) teaches it free.",
     quests = { { "Dreadsteed of Xoroth", 7631 } },
     wp = { { 1428, 12.6, 31.4, "Mor'zul Bloodbringer" } },
     source = WH .. "/classes/warlock/quests/" },
@@ -336,7 +336,7 @@ ns.AddSteps{
 
   { id = "x_world_buffs", min = 1, max = 60, kind = "extra", optional = true,
     title = "World buffs while leveling",
-    text = "Rend's head (UBRS) gives Warchief's Blessing / Might of Stormwind. Since Nov 12 heralds also reach the Crossroads and Razor Hill (Horde) and Goldshire, Lakeshire and Sentinel Hill (Alliance). Buffs no longer work in raids and, since Nov 17, always drop on death.",
+    text = "Rend's head (UBRS) gives Warchief's Blessing / Might of Stormwind. Since Nov 12 heralds also reach the Crossroads and Razor Hill (Horde) and Goldshire, Lakeshire and Sentinel Hill (Alliance). Buffs no longer work in raids and, since Nov 17, always drop on death. Since Nov 23 they stay on when you change zones.",
     source = WT .. "/news/forever-world-buffs-now-provided-in-razor-hill-goldshire-lakeshire-sentinel-hill/" },
 
   { id = "x_travel", min = 1, max = 60, kind = "extra", optional = true,
