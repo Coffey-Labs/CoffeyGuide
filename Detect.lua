@@ -76,8 +76,14 @@ function D.Evidence(step, chain)
       e.done = e.done + 1
     end
   end
-  for _, q in ipairs(step.quests or {}) do count(q) end
-  for _, s in ipairs(ns.PlanFor(step) or {}) do if s.quest then count(s.quest) end end
+  -- With a quest plan, only quests the plan turns in count: one picked up at the end of a zone
+  -- and handed in at the next is evidence for the next zone, not this one.
+  local plan = ns.PlanFor(step)
+  if plan and #plan > 0 then
+    for _, s in ipairs(plan) do if s.act == "turnin" and s.quest then count(s.quest) end end
+  else
+    for _, q in ipairs(step.quests or {}) do count(q) end
+  end
   e.here = D.IsHere(step, chain)
   return e
 end
