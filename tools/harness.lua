@@ -74,7 +74,17 @@ C_Container = { GetContainerNumSlots = function(b) return b == 0 and 2 or 0 end,
 function GetNumQuestChoices() return 2 end
 function GetQuestItemLink(_, i) return i == 1 and "item:2001" or "item:2002" end
 SlashCmdList = {}
-LibStub = nil
+-- HereBeDragons stand-in: the player stands at PLAYER_POS (map, x, y with x/y 0-1), and the
+-- distance is straight-line on a map 1000 yards across. Every other library is missing.
+PLAYER_POS = nil
+local HBD_MOCK = setmetatable({
+  GetPlayerZonePosition = function() if PLAYER_POS then return PLAYER_POS[2], PLAYER_POS[3], PLAYER_POS[1] end end,
+  GetZoneDistance = function(_, m1, x1, y1, m2, x2, y2)
+    if m1 ~= m2 then return nil end
+    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2) * 1000
+  end,
+}, { __index = function() return function() end end })
+LibStub = setmetatable({}, { __call = function(_, name) if name == "HereBeDragons-2.0" then return HBD_MOCK end end })
 
 function UnitRace() return P.race, P.raceFile, 5 end
 function UnitClass() return P.class:sub(1, 1) .. P.class:sub(2):lower(), P.class, 2 end
@@ -422,6 +432,109 @@ if shared then
   assert(ns.StepState(sharedStep) == "done", "a quest turned in at two steps must not hold the first one open")
   P.level = saved; ns.player.level = saved; questLog = {}; fire("QUEST_LOG_UPDATE")
   print("levels: shared turn-in " .. shared[2] .. " does not hold " .. sharedStep.id)
+end
+
+-- Objectives: a quest split over several rows ticks off row by row.
+SlashCmdList.COFFEYGUIDE("reset")
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+local OBJECTIVES = {}
+C_QuestLog.GetQuestObjectives = function(id) return OBJECTIVES[id] end
+local objStep, objRows
+for _, st in ipairs(ns.route) do
+  local byQuest = {}
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.obj and #s.obj > 0 and s.quest and s.quest[2] then
+      byQuest[s.quest[2]] = byQuest[s.quest[2]] or {}
+      table.insert(byQuest[s.quest[2]], s)
+    end
+  end
+  for _, rows in pairs(byQuest) do
+    if #rows >= 2 and rows[1].obj[1] ~= rows[2].obj[1] then objStep, objRows = st, rows; break end
+  end
+  if objStep then break end
+end
+if objStep then
+  local q = objRows[1].quest
+  local function setObjectives(retail)
+    local list = {}
+    for k, s in ipairs(objRows) do
+      for _, n in ipairs(s.obj) do
+        local have = k == 1 and 8 or 3
+        local text = retail and (have .. "/8 " .. n .. " slain") or (n .. " slain: " .. have .. "/8")
+        list[#list + 1] = { text = text, finished = k == 1, numFulfilled = have, numRequired = 8 }
+      end
+    end
+    OBJECTIVES[q[2]] = list
+    questLog = { { q[1], q[2] } }; fire("QUEST_LOG_UPDATE")
+  end
+  for _, retail in ipairs({ false, true }) do
+    setObjectives(retail)
+    assert(ns.SubDone(objStep, objRows[1]), "a row whose objectives are done ticks off before the quest is complete")
+    assert(not ns.SubDone(objStep, objRows[2]), "a row whose objectives are open stays open")
+    assert(ns.SubProgress(objRows[2]):find("3/8"), "an open row shows its live count")
+  end
+  OBJECTIVES[q[2]] = { { text = "Something else: 0/1", finished = false } }
+  questLog = { { q[1], q[2] } }; fire("QUEST_LOG_UPDATE")
+  assert(not ns.SubDone(objStep, objRows[1]), "unmatched objective names fall back to the whole quest")
+  OBJECTIVES = {}; questLog = {}; fire("QUEST_LOG_UPDATE")
+  print("objectives: " .. q[1] .. " ticks off row by row")
+end
+
+-- Arrival: a travel row ticks off when you get there, but only while it is the current row.
+SlashCmdList.COFFEYGUIDE("reset")
+local goStep = ns.route[ns.CurrentIndex()]
+local goRow, laterGo
+for _, s in ipairs(ns.PlanFor(goStep) or {}) do
+  if s.act == "go" and s.wp and s.wp[2] and s.arrive ~= false then
+    if not goRow then goRow = s elseif not laterGo then laterGo = s end
+  end
+end
+if goRow then
+  local function at(s, dx) PLAYER_POS = { s.wp[1], s.wp[2] / 100 + (dx or 0), s.wp[3] / 100 } end
+  for _, s in ipairs(ns.PlanFor(goStep)) do if s == goRow then break end; ns.MarkSub(goStep, s, true) end
+  local _, first = ns.PlanProgress(goStep)
+  assert(ns.PlanFor(goStep)[first] == goRow, "the travel row is the current row")
+  if laterGo then
+    at(laterGo); ns.CheckArrival()
+    assert(not (ns.char.plan[goStep.id] or {})[laterGo._i], "standing at a later stop doesn't tick it")
+  end
+  -- Browsing ahead: a later step's travel row must not tick from where you stand.
+  for j = ns.CurrentIndex() + 1, #ns.route do
+    local st = ns.route[j]
+    local plan, f = ns.PlanProgress(st)
+    local row = plan and f and plan[f]
+    if row and row.act == "go" and row.wp and row.wp[2] then
+      ns.SetView(j); at(row); ns.CheckArrival()
+      assert(not (ns.char.plan[st.id] or {})[row._i], "a step you are only browsing doesn't tick on arrival")
+      ns.SetView(nil); break
+    end
+  end
+  at(goRow, 0.2)
+  assert(not ns.CheckArrival(), "far from the waypoint the row stays open")
+  UnitOnTaxi = function() return true end; at(goRow, 0.01)
+  assert(not ns.CheckArrival(), "flying over the waypoint doesn't tick it")
+  UnitOnTaxi = nil
+  ns.MarkSub(goStep, goRow, false)
+  assert(not ns.CheckArrival(), "a row you unticked by hand stays unticked")
+  ns.char.plan[goStep.id][goRow._i] = nil
+  assert(ns.CheckArrival() and ns.SubDone(goStep, goRow), "arriving ticks the travel row")
+  PLAYER_POS = nil
+  print("arrival: " .. goStep.id .. " travel row ticks off on arrival")
+end
+
+-- Preparation rows (obj = {}) show no count and follow the whole quest.
+for _, st in ipairs(ns.route) do
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.obj and #s.obj == 0 and s.quest and s.quest[2] then
+      OBJECTIVES[s.quest[2]] = { { text = "Something: 0/5", finished = false, numFulfilled = 0, numRequired = 5 } }
+      questLog = { { s.quest[1], s.quest[2] } }; fire("QUEST_LOG_UPDATE")
+      assert(ns.SubProgress(s) == nil, "a preparation row shows no count")
+      assert(not ns.SubDone(st, s), "a preparation row waits for the whole quest")
+      OBJECTIVES = {}; questLog = {}; fire("QUEST_LOG_UPDATE")
+      print("objectives: preparation row in " .. st.id .. " shows no count")
+      break
+    end
+  end
 end
 
 CoffeyGuide_Binding("check"); CoffeyGuide_Binding("compact"); CoffeyGuide_Binding("waypoint")

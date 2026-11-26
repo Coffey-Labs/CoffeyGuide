@@ -141,8 +141,8 @@ ns.AddQuestPlan("h_silverpine", {
   -- South: Ambermill, the bears, the Skittering Dark, Pyrewood
   { act = "turnin", quest = { "Border Crossings", 477 }, npc = "Dalaran Crate", wp = { 1421, 49.9, 60.3, "Dalaran Crate" } },
   { act = "accept", quest = { "Maps and Runes", 478 }, npc = "Dalaran Crate", wp = { 1421, 49.9, 60.3, "Dalaran Crate" } },
-  { act = "kill",   quest = { "Arugal's Folly", 423 }, text = "Loot 3 Darksoul Shackles from Moonrage Darksouls; 6 Glutton Shackles come from Gluttons north-west", wp = { 1421, 58.3, 44.0, "Moonrage Darksouls" } },
-  { act = "collect",quest = { "Arugal's Folly", 423 }, text = "Loot 6 Glutton Shackles from Moonrage Gluttons", wp = { 1421, 42.0, 28.0, "Moonrage Gluttons" } },
+  { act = "kill",   quest = { "Arugal's Folly", 423 }, obj = { "Darksoul Shackle" }, text = "Loot 3 Darksoul Shackles from Moonrage Darksouls; 6 Glutton Shackles come from Gluttons north-west", wp = { 1421, 58.3, 44.0, "Moonrage Darksouls" } },
+  { act = "collect",quest = { "Arugal's Folly", 423 }, obj = { "Glutton Shackle" }, text = "Loot 6 Glutton Shackles from Moonrage Gluttons", wp = { 1421, 42.0, 28.0, "Moonrage Gluttons" } },
   { act = "collect",quest = { "A Recipe For Death", 447 }, text = "6 Grizzled Bear Hearts from bears anywhere; 6 Skittering Blood from Moss Stalkers and Mist Creepers", wp = { 1421, 35.5, 12.0, "The Skittering Dark" } },
   { act = "turnin", quest = { "Maps and Runes", 478 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 40.9, "Shadow Priest Allister" } },
   { act = "accept", quest = { "Dalar's Analysis", 481 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 40.9, "Shadow Priest Allister" } },
@@ -169,7 +169,7 @@ ns.AddQuestPlan("h_silverpine", {
   { act = "turnin", quest = { "Raleigh and the Undercity", 441 }, npc = "Raleigh Andrean", wp = { 1458, 62.0, 42.8, "Raleigh Andrean" } },
   { act = "accept", quest = { "A Husband's Revenge", 530 }, npc = "Raleigh Andrean", wp = { 1458, 62.0, 42.8, "Raleigh Andrean" } },
   { act = "note",   text = "Keep A Husband's Revenge (Valdred Moray, level 21) for your return to Silverpine at 21-23." },
-  { act = "go",     text = "At 15 take the zeppelin from the towers outside the Undercity to Orgrimmar", wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "At 15 take the zeppelin from the towers outside the Undercity to Orgrimmar", wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
 })
 
 ---------------------------------------------------------------------------
@@ -358,7 +358,7 @@ ns.AddQuestPlan("h_ashenvale_1", {
   { act = "turnin", quest = { "Freedom to Ruul", 6482 }, npc = "Yama Snowhoof", wp = { 1440, 74.1, 60.9, "Yama Snowhoof" } },
   { act = "turnin", quest = { "The Warsong Reports", 6543 }, npc = "Kadrak", wp = { 1413, 48.1, 5.4, "Kadrak (Mor'shan Rampart)" } },
   -- Back to the Eastern Kingdoms for Silverpine and Hillsbrad
-  { act = "go",     text = "Go to Orgrimmar and take the zeppelin to Tirisfal Glades", wp = { 1411, 50.8, 13.4, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "Go to Orgrimmar and take the zeppelin to Tirisfal Glades", wp = { 1411, 50.8, 13.4, "Zeppelin tower" } },
   { act = "go",     text = "Fly from the Undercity to The Sepulcher", wp = { 1458, 63.3, 48.5, "Michael Garrett" } },
   { act = "accept", quest = { "Beren's Peril", 516 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 40.9, "Shadow Priest Allister" } },
   { act = "accept", quest = { "Watching the Roads", 95981 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 41.0, "Shadow Priest Allister" } },
@@ -396,7 +396,7 @@ ns.AddQuestPlan("h_hillsbrad_1", {
   { act = "accept", quest = { "Battle of Hillsbrad", 527 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },
   { act = "accept", quest = { "Scout Support", 98094 }, npc = "High Executor Darthalia", wp = { 1424, 62.2, 20.2, "High Executor Darthalia" } },
   { act = "accept", quest = { "The Rescue", 498 }, npc = "Krusk", wp = { 1424, 63.2, 20.7, "Krusk" } },
-  { act = "collect",quest = { "Elixir of Suffering", 496 }, text = "Loot 10 Gray Bear Tongues from bears in the hills west of Tarren Mill", wp = { 1424, 57.6, 23.6, "Gray bears" } },
+  { act = "collect",quest = { "Elixir of Suffering", 496 }, obj = { "Gray Bear Tongue" }, text = "Loot 10 Gray Bear Tongues from bears in the hills west of Tarren Mill", wp = { 1424, 57.6, 23.6, "Gray bears" } },
   { act = "collect",quest = { "Elixir of Pain", 501 }, text = "Loot 10 Mountain Lion Blood from mountain lions (low drop rate)", wp = { 1424, 56.0, 25.8, "Mountain lions" } },
   -- South-east: Syndicate camps and Durnholde Keep
   { act = "kill",   quest = { "WANTED: Syndicate Personnel", 549 }, text = "Kill 10 Syndicate Rogues and 10 Syndicate Watchmen in the camps on the way to Durnholde", wp = { 1424, 66.1, 45.6, "Syndicate camps" } },
@@ -404,7 +404,7 @@ ns.AddQuestPlan("h_hillsbrad_1", {
   { act = "turnin", quest = { "Scout Support", 98094 }, npc = "Deathstalker Masoj", wp = { 1424, 64.0, 53.8, "Deathstalker Masoj" } },
   { act = "accept", quest = { "Valuable Vantages", 98095 }, npc = "Deathstalker Masoj", wp = { 1424, 64.0, 53.8, "Deathstalker Masoj" } },
   { act = "use",    quest = { "Valuable Vantages", 98095 }, text = "Uncork the vials: hills by Dun Garok, plateau over Durnholde, Headland ridge above Hillsbrad" },
-  { act = "collect",quest = { "Elixir of Suffering", 496 }, text = "Loot Creeper Ichor from moss creepers (rare drop) while you cross the hills", wp = { 1424, 34.7, 58.8, "Moss creepers" } },
+  { act = "collect",quest = { "Elixir of Suffering", 496 }, obj = { "Creeper Ichor" }, text = "Loot Creeper Ichor from moss creepers (rare drop) while you cross the hills", wp = { 1424, 34.7, 58.8, "Moss creepers" } },
   { act = "turnin", quest = { "Valuable Vantages", 98095 }, npc = "Deathstalker Masoj", wp = { 1424, 64.0, 53.8, "Deathstalker Masoj" } },
   { act = "turnin", quest = { "WANTED: Syndicate Personnel", 549 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },
   { act = "turnin", quest = { "The Rescue", 498 }, npc = "Krusk", wp = { 1424, 63.2, 20.7, "Krusk" } },
@@ -435,7 +435,7 @@ ns.AddQuestPlan("h_hillsbrad_1", {
 -- Stonetalon Mountains and the southern Barrens, 24-26
 ---------------------------------------------------------------------------
 ns.AddQuestPlan("h_stonetalon", {
-  { act = "go",     text = "Zeppelin from the Tirisfal towers to Orgrimmar, then fly to the Crossroads", races = { "Scourge" }, wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "Zeppelin from the Tirisfal towers to Orgrimmar, then fly to the Crossroads", races = { "Scourge" }, wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
   { act = "go",     text = "Ride west from the Crossroads into Stonetalon; Malaka'jin is at the canyon mouth", wp = { 1442, 71.2, 95.0, "Malaka'jin" } },
   { act = "accept", quest = { "Jin'Zil's Forest Magic", 1058 }, npc = "Witch Doctor Jin'Zil", wp = { 1442, 74.5, 97.9, "Witch Doctor Jin'Zil" } },
   -- Windshear Crag

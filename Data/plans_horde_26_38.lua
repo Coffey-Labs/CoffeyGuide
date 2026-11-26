@@ -126,7 +126,7 @@ ns.AddQuestPlan("h_hillsbrad_arathi", {
   -- Hillsbrad Fields
   { act = "kill",    quest = { "Battle of Hillsbrad", 529 }, text = "Smithy: kill Blacksmith Verringtan and 4 apprentices, grab the Shipment of Iron", wp = { 1424, 32.1, 44.4, "Hillsbrad smithy" } },
   { act = "kill",    quest = { "Battle of Hillsbrad", 532 }, text = "Town hall: kill Magistrate Burnside and 4 Councilmen, take the Registry, post the proclamation", wp = { 1424, 29.7, 41.6, "Town hall" } },
-  { act = "kill",    quest = { "Dangerous!", 567 }, text = "Kill Clerk Whitesteed, Citizen Wilkes (32.6,39.8) and Farmer Kalaba (35.9,46.5)", wp = { 1424, 29.5, 42.4, "Clerk Horrace Whitesteed" } },
+  { act = "kill",    quest = { "Dangerous!", 567 }, obj = { "Clerk Horrace Whitesteed", "Citizen Wilkes", "Farmer Kalaba" }, text = "Kill Clerk Whitesteed, Citizen Wilkes (32.6,39.8) and Farmer Kalaba (35.9,46.5)", wp = { 1424, 29.5, 42.4, "Clerk Horrace Whitesteed" } },
   { act = "collect", quest = { "Elixir of Agony", 509 }, text = "Pick 6 Mudsnout Blossoms on the hillsides above the river southwest of Durnholde", wp = { 1424, 64.0, 59.7, "Mudsnout Blossoms" } },
   { act = "turnin",  quest = { "Battle of Hillsbrad", 529 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },
   { act = "turnin",  quest = { "Battle of Hillsbrad", 532 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },
@@ -142,7 +142,7 @@ ns.AddQuestPlan("h_hillsbrad_arathi", {
   { act = "collect", quest = { "Helcular's Revenge", 552 }, text = "Kill yetis in the caves until Helcular's Rod drops", wp = { 1416, 35.7, 61.3, "Yeti caves" } },
   -- Azurelode Mine
   { act = "kill",    quest = { "Battle of Hillsbrad", 539 }, text = "Azurelode Mine: kill 10 Hillsbrad Miners and Foreman Bonds deep inside", wp = { 1424, 31.2, 56.0, "Foreman Bonds" } },
-  { act = "kill",    quest = { "Dangerous!", 567 }, text = "Kill Miner Hackett in the mine to finish Dangerous!", wp = { 1424, 31.1, 58.6, "Miner Hackett" } },
+  { act = "kill",    quest = { "Dangerous!", 567 }, obj = { "Miner Hackett" }, text = "Kill Miner Hackett in the mine to finish Dangerous!", wp = { 1424, 31.1, 58.6, "Miner Hackett" } },
   { act = "hs",      text = "Hearth to Tarren Mill" },
   { act = "turnin",  quest = { "Battle of Hillsbrad", 539 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },
   { act = "turnin",  quest = { "Dangerous!", 567 }, npc = "High Executor Darthalia", wp = { 1424, 62.3, 20.4, "High Executor Darthalia" } },

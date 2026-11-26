@@ -290,7 +290,10 @@ end
 -- The next objective in one line: the first open plan sub-step, else the step text.
 local function ActionText(step)
   local plan, first = ns.PlanProgress(step)
-  if plan and first then return ns.SubText(plan[first]), true end
+  if plan and first then
+    local prog = ns.SubProgress(plan[first])
+    return ns.SubText(plan[first]) .. (prog and ("  |cffaaaaaa(" .. prog .. ")|r") or ""), true
+  end
   return step.text or step.title or "", false
 end
 
@@ -460,6 +463,8 @@ local function Refresh()
         if isDone then text = ns.C("good") .. Plain(text) .. "|r"
         elseif isMissed then text = "|cff707070" .. Plain(text) .. "  (passed by)|r"
         elseif not isCur then text = "|cffaaaaaa" .. Plain(text) .. "|r" end
+        local prog = not isDone and not isMissed and ns.SubProgress(s)
+        if prog then text = text .. "  |cffaaaaaa(" .. prog .. ")|r" end
         r.text:SetText(text)
         r.box.tex:SetTexture(isDone and UI.STATUS.done or (isCur and UI.STATUS.current or UI.STATUS.todo))
         r.icon:SetDesaturated(isDone or isMissed)

@@ -2,7 +2,8 @@
 -- tracking, and optional Questie database lookups for NPC locations (never required).
 local ADDON, ns = ...
 
-ns.logComplete = {}  -- questID -> true when objectives are complete (ready to turn in)
+ns.logComplete = {}   -- questID -> true when objectives are complete (ready to turn in)
+ns.logObjectives = {} -- questID -> { { name, done, have, need }, ... } for quests in the log
 
 ns.ACT_ICONS = {
   accept  = "Interface\\GossipFrame\\AvailableQuestIcon",
@@ -84,6 +85,68 @@ end
 
 local AutoDone -- defined below: flight paths, hearthstone and travel steps
 
+---------------------------------------------------------------------------
+-- Objectives: a quest split over several plan rows ticks off row by row.
+-- Rows name their objectives (obj = { "Hexed Troll", "Voodoo Troll" }), matched against
+-- the objective text in the quest log, so the order the game lists them in doesn't matter.
+---------------------------------------------------------------------------
+-- "Hexed Troll slain: 3/8", "3/8 Hexed Troll slain" or "Zalazane's Head: 0/1"
+-- -> "hexed troll", 3, 8
+local function ParseObjective(text)
+  local t = (text or ""):lower()
+  local have, need = t:match("(%d+)%s*/%s*(%d+)")
+  t = t:gsub("^%s*%d+%s*/%s*%d+%s*", "")
+  t = t:gsub("%s*:%s*%d+%s*/%s*%d+%s*$", "")
+  t = t:gsub("%s*%(%d+%s*/%s*%d+%)%s*$", "")
+  t = t:gsub("%s+slain$", ""):gsub("^%s+", ""):gsub("%s+$", "")
+  return t, tonumber(have), tonumber(need)
+end
+
+-- The log objective a row names: an exact name first, else the only one containing it.
+local function FindObjective(list, want)
+  want = want:lower()
+  for _, o in ipairs(list) do if o.name == want then return o end end
+  local hit
+  for _, o in ipairs(list) do
+    if o.name:find(want, 1, true) then
+      if hit then return nil end
+      hit = o
+    end
+  end
+  return hit
+end
+
+-- The objectives a row covers, or nil when the log can't tell (quest not in the log, or a
+-- name that doesn't match): then the row falls back to the whole quest. An empty list
+-- (obj = {}) marks a preparation row that has no objective of its own.
+local function RowObjectives(s)
+  local id = QuestID(s)
+  local list = id and ns.logObjectives[id]
+  if not list or #list == 0 then return nil end
+  if not s.obj then return list end
+  if #s.obj == 0 then return nil end
+  local out = {}
+  for _, n in ipairs(s.obj) do
+    local o = FindObjective(list, n)
+    if not o then return nil end
+    out[#out + 1] = o
+  end
+  return out
+end
+
+-- Live counts for a row in progress, e.g. "3/8" or "8/8, 2/4"; nil when there are none.
+function ns.SubProgress(s)
+  if not s or not (s.act == "kill" or s.act == "collect" or s.act == "use") then return nil end
+  if s.obj and #s.obj == 0 then return nil end
+  local objs = RowObjectives(s)
+  if not objs then return nil end
+  local parts = {}
+  for _, o in ipairs(objs) do
+    if o.have and o.need and o.need > 1 then parts[#parts + 1] = o.have .. "/" .. o.need end
+  end
+  return #parts > 0 and table.concat(parts, ", ") or nil
+end
+
 function ns.SubDone(step, s)
   local mark = ns.char.plan[step.id]
   if mark and mark[s._i] then return true end
@@ -94,7 +157,18 @@ function ns.SubDone(step, s)
   if q then
     if ns.IsQuestDone(q) then return true end
     if s.act == "accept" then return ns.IsQuestActive(q) and true or false end
-    if s.act == "kill" or s.act == "collect" or s.act == "use" then return id and ns.logComplete[id] or false end
+    if s.act == "kill" or s.act == "collect" or s.act == "use" then
+      if not id then return false end
+      if ns.logComplete[id] then return true end
+      if s.obj then
+        local objs = RowObjectives(s)
+        if objs then
+          for _, o in ipairs(objs) do if not o.done then return false end end
+          return true
+        end
+      end
+      return false
+    end
     return false
   end
   return false
@@ -102,7 +176,8 @@ end
 
 function ns.MarkSub(step, s, value)
   ns.char.plan[step.id] = ns.char.plan[step.id] or {}
-  ns.char.plan[step.id][s._i] = value or nil
+  -- An untick is remembered (false), so arrival doesn't tick the row again.
+  ns.char.plan[step.id][s._i] = value and true or false
   ns.Invalidate()
   ns.Fire("Refresh")
 end
@@ -244,11 +319,29 @@ end
 
 function ns.ScanLogCompletion()
   ns.Invalidate()
-  wipe(ns.logComplete)
+  wipe(ns.logComplete); wipe(ns.logObjectives)
   local num = (GetNumQuestLogEntries and GetNumQuestLogEntries()) or 0
   for i = 1, num do
     local _, _, _, isHeader, _, isComplete, _, id = GetQuestLogTitle(i)
-    if not isHeader and id and (isComplete == 1 or isComplete == true) then ns.logComplete[id] = true end
+    if not isHeader and id then
+      if isComplete == 1 or isComplete == true then ns.logComplete[id] = true end
+      local list = {}
+      local objs = C_QuestLog and C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(id)
+      if type(objs) == "table" and #objs > 0 then
+        for _, o in ipairs(objs) do
+          local name, have, need = ParseObjective(o.text)
+          list[#list + 1] = { name = name, done = o.finished and true or false,
+                              have = o.numFulfilled or have, need = o.numRequired or need }
+        end
+      elseif GetNumQuestLeaderBoards and GetQuestLogLeaderBoard then
+        for j = 1, GetNumQuestLeaderBoards(i) or 0 do
+          local text, _, finished = GetQuestLogLeaderBoard(j, i)
+          local name, have, need = ParseObjective(text)
+          list[#list + 1] = { name = name, done = finished and true or false, have = have, need = need }
+        end
+      end
+      ns.logObjectives[id] = list
+    end
   end
 end
 
@@ -419,6 +512,30 @@ local function SaveBinds()
   end
 end
 ns.On("Refresh", SaveBinds)
+
+-- Travel rows ("go") tick off when you arrive within ARRIVE yards of their waypoint. Only the
+-- current row of the step you are on counts (not one you are browsing ahead to), so riding
+-- past a later stop doesn't. Not while flying, not on rows whose waypoint is where you set
+-- off (arrive = false, e.g. a zeppelin tower), and not on a row you unticked by hand.
+local ARRIVE = 50
+function ns.CheckArrival()
+  if not (ns.char and ns.char.plan and ns.route and HBD) then return false end
+  if UnitOnTaxi and UnitOnTaxi("player") then return false end
+  local before = ns.CurrentIndex()
+  local step = ns.route[before]
+  local plan, first = ns.PlanProgress(step)
+  local s = plan and first and plan[first]
+  if not (s and s.act == "go" and s.wp and s.arrive ~= false) then return false end
+  local marks = ns.char.plan[step.id]
+  if marks and marks[s._i] == false then return false end
+  if not Near(s, ARRIVE) then return false end
+  Mark(step, s)
+  local after = ns.CurrentIndex()
+  if after ~= before then ns.Fire("StepAdvanced", ns.route[before], ns.route[after]) end
+  ns.Fire("Refresh")
+  return true
+end
+if C_Timer and C_Timer.NewTicker then C_Timer.NewTicker(2, function() pcall(ns.CheckArrival) end) end
 
 local ev = CreateFrame("Frame")
 for _, e in ipairs({ "TAXIMAP_OPENED", "UI_INFO_MESSAGE", "HEARTHSTONE_BOUND", "UNIT_SPELLCAST_SUCCEEDED" }) do
