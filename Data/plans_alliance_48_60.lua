@@ -318,8 +318,8 @@ ns.AddQuestPlan("a_plaguelands", {
   { act = "turnin", quest = { "A Plague Upon Thee", 5903 }, npc = "Nathaniel Dumah", wp = { 1422, 43.4, 84.8, "Nathaniel Dumah" } },
   { act = "accept", quest = { "A Plague Upon Thee", 5904 }, npc = "Nathaniel Dumah", wp = { 1422, 43.4, 84.8, "Nathaniel Dumah" } },
   { act = "accept", quest = { "Target: Dalson's Tears", 5219 }, npc = "High Priestess MacDonnell", wp = { 1422, 43.0, 84.5, "High Priestess MacDonnell" } },
-  { act = "collect",quest = { "Heroes of Darrowshire", 5168 }, text = "Take Redpath's Shield east of the barn at Gahrron's Withering", wp = { 1422, 63.8, 57.2, "Redpath's Shield" } },
-  { act = "collect",quest = { "Heroes of Darrowshire", 5168 }, text = "Take Davil's Libram from the Hearthglen town hall", wp = { 1422, 42.5, 19.0, "Davil's Libram" } },
+  { act = "collect",quest = { "Heroes of Darrowshire", 5168 }, obj = { "Redpath's Shield" }, text = "Take Redpath's Shield east of the barn at Gahrron's Withering", wp = { 1422, 63.8, 57.2, "Redpath's Shield" } },
+  { act = "collect",quest = { "Heroes of Darrowshire", 5168 }, obj = { "Davil's Libram" }, text = "Take Davil's Libram from the Hearthglen town hall", wp = { 1422, 42.5, 19.0, "Davil's Libram" } },
   { act = "note",   text = "Scholomance and Stratholme quests from these camps are group content" },
 })
 

@@ -74,7 +74,17 @@ C_Container = { GetContainerNumSlots = function(b) return b == 0 and 2 or 0 end,
 function GetNumQuestChoices() return 2 end
 function GetQuestItemLink(_, i) return i == 1 and "item:2001" or "item:2002" end
 SlashCmdList = {}
-LibStub = nil
+-- HereBeDragons stand-in: the player stands at PLAYER_POS (map, x, y with x/y 0-1), and the
+-- distance is straight-line on a map 1000 yards across. Every other library is missing.
+PLAYER_POS = nil
+local HBD_MOCK = setmetatable({
+  GetPlayerZonePosition = function() if PLAYER_POS then return PLAYER_POS[2], PLAYER_POS[3], PLAYER_POS[1] end end,
+  GetZoneDistance = function(_, m1, x1, y1, m2, x2, y2)
+    if m1 ~= m2 then return nil end
+    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2) * 1000
+  end,
+}, { __index = function() return function() end end })
+LibStub = setmetatable({}, { __call = function(_, name) if name == "HereBeDragons-2.0" then return HBD_MOCK end end })
 
 function UnitRace() return P.race, P.raceFile, 5 end
 function UnitClass() return P.class:sub(1, 1) .. P.class:sub(2):lower(), P.class, 2 end
@@ -422,6 +432,82 @@ if shared then
   assert(ns.StepState(sharedStep) == "done", "a quest turned in at two steps must not hold the first one open")
   P.level = saved; ns.player.level = saved; questLog = {}; fire("QUEST_LOG_UPDATE")
   print("levels: shared turn-in " .. shared[2] .. " does not hold " .. sharedStep.id)
+end
+
+-- Objectives: a quest split over several rows ticks off row by row.
+SlashCmdList.COFFEYGUIDE("reset")
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+local OBJECTIVES = {}
+C_QuestLog.GetQuestObjectives = function(id) return OBJECTIVES[id] end
+local objStep, objRows
+for _, st in ipairs(ns.route) do
+  local byQuest = {}
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.obj and s.quest and s.quest[2] then
+      byQuest[s.quest[2]] = byQuest[s.quest[2]] or {}
+      table.insert(byQuest[s.quest[2]], s)
+    end
+  end
+  for _, rows in pairs(byQuest) do
+    if #rows >= 2 and rows[1].obj[1] ~= rows[2].obj[1] then objStep, objRows = st, rows; break end
+  end
+  if objStep then break end
+end
+if objStep then
+  local q = objRows[1].quest
+  local function setObjectives(retail)
+    local list = {}
+    for k, s in ipairs(objRows) do
+      for _, n in ipairs(s.obj) do
+        local have = k == 1 and 8 or 3
+        local text = retail and (have .. "/8 " .. n .. " slain") or (n .. " slain: " .. have .. "/8")
+        list[#list + 1] = { text = text, finished = k == 1, numFulfilled = have, numRequired = 8 }
+      end
+    end
+    OBJECTIVES[q[2]] = list
+    questLog = { { q[1], q[2] } }; fire("QUEST_LOG_UPDATE")
+  end
+  for _, retail in ipairs({ false, true }) do
+    setObjectives(retail)
+    assert(ns.SubDone(objStep, objRows[1]), "a row whose objectives are done ticks off before the quest is complete")
+    assert(not ns.SubDone(objStep, objRows[2]), "a row whose objectives are open stays open")
+    assert(ns.SubProgress(objRows[2]):find("3/8"), "an open row shows its live count")
+  end
+  OBJECTIVES[q[2]] = { { text = "Something else: 0/1", finished = false } }
+  questLog = { { q[1], q[2] } }; fire("QUEST_LOG_UPDATE")
+  assert(not ns.SubDone(objStep, objRows[1]), "unmatched objective names fall back to the whole quest")
+  OBJECTIVES = {}; questLog = {}; fire("QUEST_LOG_UPDATE")
+  print("objectives: " .. q[1] .. " ticks off row by row")
+end
+
+-- Arrival: a travel row ticks off when you get there, but only while it is the current row.
+SlashCmdList.COFFEYGUIDE("reset")
+local goStep, goRow, goIdx, laterGo
+for i, st in ipairs(ns.route) do
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.act == "go" and s.wp and s.wp[2] then
+      if not goRow then goStep, goRow, goIdx = st, s, i
+      elseif st == goStep then laterGo = s; break end
+    end
+  end
+  if goRow then break end
+end
+if goRow then
+  ns.SetView(goIdx)
+  for _, s in ipairs(ns.PlanFor(goStep)) do if s == goRow then break end; ns.MarkSub(goStep, s, true) end
+  local _, first = ns.PlanProgress(goStep)
+  assert(ns.PlanFor(goStep)[first] == goRow, "the travel row is the current row")
+  if laterGo then
+    PLAYER_POS = { laterGo.wp[1], laterGo.wp[2] / 100, laterGo.wp[3] / 100 }
+    ns.CheckArrival()
+    assert(not (ns.char.plan[goStep.id] or {})[laterGo._i], "standing at a later stop doesn't tick it")
+  end
+  PLAYER_POS = { goRow.wp[1], goRow.wp[2] / 100 + 0.2, goRow.wp[3] / 100 }
+  assert(not ns.CheckArrival(), "far from the waypoint the row stays open")
+  PLAYER_POS = { goRow.wp[1], goRow.wp[2] / 100 + 0.01, goRow.wp[3] / 100 }
+  assert(ns.CheckArrival() and ns.SubDone(goStep, goRow), "arriving ticks the travel row")
+  PLAYER_POS = nil; ns.SetView(nil)
+  print("arrival: " .. goStep.id .. " travel row ticks off on arrival")
 end
 
 CoffeyGuide_Binding("check"); CoffeyGuide_Binding("compact"); CoffeyGuide_Binding("waypoint")
