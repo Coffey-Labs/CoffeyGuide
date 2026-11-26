@@ -117,12 +117,14 @@ local function FindObjective(list, want)
 end
 
 -- The objectives a row covers, or nil when the log can't tell (quest not in the log, or a
--- name that doesn't match): then the row falls back to the whole quest.
+-- name that doesn't match): then the row falls back to the whole quest. An empty list
+-- (obj = {}) marks a preparation row that has no objective of its own.
 local function RowObjectives(s)
   local id = QuestID(s)
   local list = id and ns.logObjectives[id]
   if not list or #list == 0 then return nil end
   if not s.obj then return list end
+  if #s.obj == 0 then return nil end
   local out = {}
   for _, n in ipairs(s.obj) do
     local o = FindObjective(list, n)
@@ -135,6 +137,7 @@ end
 -- Live counts for a row in progress, e.g. "3/8" or "8/8, 2/4"; nil when there are none.
 function ns.SubProgress(s)
   if not s or not (s.act == "kill" or s.act == "collect" or s.act == "use") then return nil end
+  if s.obj and #s.obj == 0 then return nil end
   local objs = RowObjectives(s)
   if not objs then return nil end
   local parts = {}
@@ -173,7 +176,8 @@ end
 
 function ns.MarkSub(step, s, value)
   ns.char.plan[step.id] = ns.char.plan[step.id] or {}
-  ns.char.plan[step.id][s._i] = value or nil
+  -- An untick is remembered (false), so arrival doesn't tick the row again.
+  ns.char.plan[step.id][s._i] = value and true or false
   ns.Invalidate()
   ns.Fire("Refresh")
 end
@@ -510,18 +514,26 @@ end
 ns.On("Refresh", SaveBinds)
 
 -- Travel rows ("go") tick off when you arrive within ARRIVE yards of their waypoint. Only the
--- current row of the steps you are working on counts, so riding past a later stop doesn't.
+-- current row of the step you are on counts (not one you are browsing ahead to), so riding
+-- past a later stop doesn't. Not while flying, not on rows whose waypoint is where you set
+-- off (arrive = false, e.g. a zeppelin tower), and not on a row you unticked by hand.
 local ARRIVE = 50
 function ns.CheckArrival()
   if not (ns.char and ns.char.plan and ns.route and HBD) then return false end
-  local hit = false
-  for _, step in ipairs(ActiveSteps()) do
-    local plan, first = ns.PlanProgress(step)
-    local s = plan and first and plan[first]
-    if s and s.act == "go" and s.wp and Near(s, ARRIVE) then Mark(step, s); hit = true end
-  end
-  if hit then ns.Fire("Refresh") end
-  return hit
+  if UnitOnTaxi and UnitOnTaxi("player") then return false end
+  local before = ns.CurrentIndex()
+  local step = ns.route[before]
+  local plan, first = ns.PlanProgress(step)
+  local s = plan and first and plan[first]
+  if not (s and s.act == "go" and s.wp and s.arrive ~= false) then return false end
+  local marks = ns.char.plan[step.id]
+  if marks and marks[s._i] == false then return false end
+  if not Near(s, ARRIVE) then return false end
+  Mark(step, s)
+  local after = ns.CurrentIndex()
+  if after ~= before then ns.Fire("StepAdvanced", ns.route[before], ns.route[after]) end
+  ns.Fire("Refresh")
+  return true
 end
 if C_Timer and C_Timer.NewTicker then C_Timer.NewTicker(2, function() pcall(ns.CheckArrival) end) end
 

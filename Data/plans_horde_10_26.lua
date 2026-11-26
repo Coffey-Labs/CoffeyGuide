@@ -169,7 +169,7 @@ ns.AddQuestPlan("h_silverpine", {
   { act = "turnin", quest = { "Raleigh and the Undercity", 441 }, npc = "Raleigh Andrean", wp = { 1458, 62.0, 42.8, "Raleigh Andrean" } },
   { act = "accept", quest = { "A Husband's Revenge", 530 }, npc = "Raleigh Andrean", wp = { 1458, 62.0, 42.8, "Raleigh Andrean" } },
   { act = "note",   text = "Keep A Husband's Revenge (Valdred Moray, level 21) for your return to Silverpine at 21-23." },
-  { act = "go",     text = "At 15 take the zeppelin from the towers outside the Undercity to Orgrimmar", wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "At 15 take the zeppelin from the towers outside the Undercity to Orgrimmar", wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
 })
 
 ---------------------------------------------------------------------------
@@ -358,7 +358,7 @@ ns.AddQuestPlan("h_ashenvale_1", {
   { act = "turnin", quest = { "Freedom to Ruul", 6482 }, npc = "Yama Snowhoof", wp = { 1440, 74.1, 60.9, "Yama Snowhoof" } },
   { act = "turnin", quest = { "The Warsong Reports", 6543 }, npc = "Kadrak", wp = { 1413, 48.1, 5.4, "Kadrak (Mor'shan Rampart)" } },
   -- Back to the Eastern Kingdoms for Silverpine and Hillsbrad
-  { act = "go",     text = "Go to Orgrimmar and take the zeppelin to Tirisfal Glades", wp = { 1411, 50.8, 13.4, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "Go to Orgrimmar and take the zeppelin to Tirisfal Glades", wp = { 1411, 50.8, 13.4, "Zeppelin tower" } },
   { act = "go",     text = "Fly from the Undercity to The Sepulcher", wp = { 1458, 63.3, 48.5, "Michael Garrett" } },
   { act = "accept", quest = { "Beren's Peril", 516 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 40.9, "Shadow Priest Allister" } },
   { act = "accept", quest = { "Watching the Roads", 95981 }, npc = "Shadow Priest Allister", wp = { 1421, 44.0, 41.0, "Shadow Priest Allister" } },
@@ -435,7 +435,7 @@ ns.AddQuestPlan("h_hillsbrad_1", {
 -- Stonetalon Mountains and the southern Barrens, 24-26
 ---------------------------------------------------------------------------
 ns.AddQuestPlan("h_stonetalon", {
-  { act = "go",     text = "Zeppelin from the Tirisfal towers to Orgrimmar, then fly to the Crossroads", races = { "Scourge" }, wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
+  { act = "go", arrive = false,     text = "Zeppelin from the Tirisfal towers to Orgrimmar, then fly to the Crossroads", races = { "Scourge" }, wp = { 1420, 61.9, 58.9, "Zeppelin tower" } },
   { act = "go",     text = "Ride west from the Crossroads into Stonetalon; Malaka'jin is at the canyon mouth", wp = { 1442, 71.2, 95.0, "Malaka'jin" } },
   { act = "accept", quest = { "Jin'Zil's Forest Magic", 1058 }, npc = "Witch Doctor Jin'Zil", wp = { 1442, 74.5, 97.9, "Witch Doctor Jin'Zil" } },
   -- Windshear Crag

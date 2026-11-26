@@ -443,7 +443,7 @@ local objStep, objRows
 for _, st in ipairs(ns.route) do
   local byQuest = {}
   for _, s in ipairs(ns.PlanFor(st) or {}) do
-    if s.obj and s.quest and s.quest[2] then
+    if s.obj and #s.obj > 0 and s.quest and s.quest[2] then
       byQuest[s.quest[2]] = byQuest[s.quest[2]] or {}
       table.insert(byQuest[s.quest[2]], s)
     end
@@ -482,32 +482,59 @@ end
 
 -- Arrival: a travel row ticks off when you get there, but only while it is the current row.
 SlashCmdList.COFFEYGUIDE("reset")
-local goStep, goRow, goIdx, laterGo
-for i, st in ipairs(ns.route) do
-  for _, s in ipairs(ns.PlanFor(st) or {}) do
-    if s.act == "go" and s.wp and s.wp[2] then
-      if not goRow then goStep, goRow, goIdx = st, s, i
-      elseif st == goStep then laterGo = s; break end
-    end
+local goStep = ns.route[ns.CurrentIndex()]
+local goRow, laterGo
+for _, s in ipairs(ns.PlanFor(goStep) or {}) do
+  if s.act == "go" and s.wp and s.wp[2] and s.arrive ~= false then
+    if not goRow then goRow = s elseif not laterGo then laterGo = s end
   end
-  if goRow then break end
 end
 if goRow then
-  ns.SetView(goIdx)
+  local function at(s, dx) PLAYER_POS = { s.wp[1], s.wp[2] / 100 + (dx or 0), s.wp[3] / 100 } end
   for _, s in ipairs(ns.PlanFor(goStep)) do if s == goRow then break end; ns.MarkSub(goStep, s, true) end
   local _, first = ns.PlanProgress(goStep)
   assert(ns.PlanFor(goStep)[first] == goRow, "the travel row is the current row")
   if laterGo then
-    PLAYER_POS = { laterGo.wp[1], laterGo.wp[2] / 100, laterGo.wp[3] / 100 }
-    ns.CheckArrival()
+    at(laterGo); ns.CheckArrival()
     assert(not (ns.char.plan[goStep.id] or {})[laterGo._i], "standing at a later stop doesn't tick it")
   end
-  PLAYER_POS = { goRow.wp[1], goRow.wp[2] / 100 + 0.2, goRow.wp[3] / 100 }
+  -- Browsing ahead: a later step's travel row must not tick from where you stand.
+  for j = ns.CurrentIndex() + 1, #ns.route do
+    local st = ns.route[j]
+    local plan, f = ns.PlanProgress(st)
+    local row = plan and f and plan[f]
+    if row and row.act == "go" and row.wp and row.wp[2] then
+      ns.SetView(j); at(row); ns.CheckArrival()
+      assert(not (ns.char.plan[st.id] or {})[row._i], "a step you are only browsing doesn't tick on arrival")
+      ns.SetView(nil); break
+    end
+  end
+  at(goRow, 0.2)
   assert(not ns.CheckArrival(), "far from the waypoint the row stays open")
-  PLAYER_POS = { goRow.wp[1], goRow.wp[2] / 100 + 0.01, goRow.wp[3] / 100 }
+  UnitOnTaxi = function() return true end; at(goRow, 0.01)
+  assert(not ns.CheckArrival(), "flying over the waypoint doesn't tick it")
+  UnitOnTaxi = nil
+  ns.MarkSub(goStep, goRow, false)
+  assert(not ns.CheckArrival(), "a row you unticked by hand stays unticked")
+  ns.char.plan[goStep.id][goRow._i] = nil
   assert(ns.CheckArrival() and ns.SubDone(goStep, goRow), "arriving ticks the travel row")
-  PLAYER_POS = nil; ns.SetView(nil)
+  PLAYER_POS = nil
   print("arrival: " .. goStep.id .. " travel row ticks off on arrival")
+end
+
+-- Preparation rows (obj = {}) show no count and follow the whole quest.
+for _, st in ipairs(ns.route) do
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.obj and #s.obj == 0 and s.quest and s.quest[2] then
+      OBJECTIVES[s.quest[2]] = { { text = "Something: 0/5", finished = false, numFulfilled = 0, numRequired = 5 } }
+      questLog = { { s.quest[1], s.quest[2] } }; fire("QUEST_LOG_UPDATE")
+      assert(ns.SubProgress(s) == nil, "a preparation row shows no count")
+      assert(not ns.SubDone(st, s), "a preparation row waits for the whole quest")
+      OBJECTIVES = {}; questLog = {}; fire("QUEST_LOG_UPDATE")
+      print("objectives: preparation row in " .. st.id .. " shows no count")
+      break
+    end
+  end
 end
 
 CoffeyGuide_Binding("check"); CoffeyGuide_Binding("compact"); CoffeyGuide_Binding("waypoint")
