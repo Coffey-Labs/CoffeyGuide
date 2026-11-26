@@ -349,6 +349,81 @@ if target then
 else
   print("detect: no later zone step with a plan for this character; skipped")
 end
+-- Same-name quests: finishing one part of a chain must not tick off the others.
+SlashCmdList.COFFEYGUIDE("reset")
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+completed[70001] = true; QNAMES[70001] = "Shared Name Test"
+ns.LoadCompleted(); ns.ResolveCompletedNames(); fire("QUEST_LOG_UPDATE")
+assert(ns.IsQuestDone({ "Shared Name Test", 70001 }), "the finished part counts as done")
+assert(not ns.IsQuestDone({ "Shared Name Test", 70002 }), "another quest with the same name must not count as done")
+assert(ns.IsQuestDone({ "Shared Name Test" }), "a quest known only by name still matches by name")
+questLog = { { "Shared Name Test", 70003 } }; fire("QUEST_LOG_UPDATE")
+assert(not ns.IsQuestActive({ "Shared Name Test", 70002 }), "a later part in the log is not this part")
+assert(ns.IsQuestActive({ "Shared Name Test", 70003 }), "the part in the log is active")
+assert(ns.IsQuestActive({ "Shared Name Test" }), "a quest known only by name is active by name")
+questLog = {}; fire("QUEST_LOG_UPDATE")
+print("names: same-name chain parts stay separate")
+
+-- Levels: reaching a zone's last level must not close it while you are working on it.
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+fire("QUEST_LOG_UPDATE")
+local hold
+for _, st in ipairs(ns.route) do
+  local plan = ns.PlanFor(st)
+  if st.kind == "zone" and not st.optional and st.reach and plan and #plan >= 6 then hold = st; break end
+end
+-- Quests each step turns in, and which quests more than one step turns in.
+local owners = {}
+for _, st in ipairs(ns.route) do
+  local seen = {}
+  for _, s in ipairs(ns.PlanFor(st) or {}) do
+    if s.act == "turnin" and s.quest and s.quest[2] and not seen[s.quest[2]] then
+      seen[s.quest[2]] = true; owners[s.quest[2]] = (owners[s.quest[2]] or 0) + 1
+    end
+  end
+end
+if hold then
+  local qs, seen = {}, {}
+  for _, s in ipairs(ns.PlanFor(hold)) do
+    local id = s.act == "turnin" and s.quest and s.quest[2]
+    if id and owners[id] == 1 and not seen[id] then seen[id] = true; qs[#qs + 1] = s.quest end
+  end
+  local saved = P.level
+  local function at(level) P.level = level; ns.player.level = level; ns.Invalidate(); return ns.StepState(hold) end
+  assert(at(hold.reach) == "done", "a zone you never started closes at its reach level")
+  completed[qs[1][2]] = true; QNAMES[qs[1][2]] = qs[1][1]; ns.LoadCompleted()
+  questLog = { { qs[2][1], qs[2][2] }, { qs[3][1], qs[3][2] } }; fire("QUEST_LOG_UPDATE")
+  assert(at(hold.reach) == nil, "quests in the log keep the zone open at its reach level")
+  assert(at(hold.reach + 4) == nil, "quests in the log keep the zone open up to 4 levels past it")
+  assert(at(hold.reach + 5) ~= nil, "a zone left 5+ levels behind closes even with quests in the log")
+  questLog = {}; fire("QUEST_LOG_UPDATE")
+  assert(at(hold.reach + 2) == nil, "a started zone with quests left stays open for 2 levels past it")
+  assert(at(hold.reach + 3) ~= nil, "a started zone closes 3 levels past it")
+  at(saved)
+  print("levels: " .. hold.id .. " held while working, closes when left behind")
+end
+
+-- A quest the route turns in at two steps (put off to a second visit) holds neither of them.
+completed = {}; ns.completed = {}; wipe(ns.completedNames); questLog = {}
+local shared, sharedStep
+for _, st in ipairs(ns.route) do
+  if st.kind == "zone" and not st.optional and st.reach then
+    for _, s in ipairs(ns.PlanFor(st) or {}) do
+      local id = s.act == "turnin" and s.quest and s.quest[2]
+      if id and (owners[id] or 0) > 1 then shared, sharedStep = s.quest, st; break end
+    end
+  end
+  if shared then break end
+end
+if shared then
+  local saved = P.level
+  questLog = { { shared[1], shared[2] } }; fire("QUEST_LOG_UPDATE")
+  P.level = sharedStep.reach; ns.player.level = sharedStep.reach; ns.Invalidate()
+  assert(ns.StepState(sharedStep) == "done", "a quest turned in at two steps must not hold the first one open")
+  P.level = saved; ns.player.level = saved; questLog = {}; fire("QUEST_LOG_UPDATE")
+  print("levels: shared turn-in " .. shared[2] .. " does not hold " .. sharedStep.id)
+end
+
 CoffeyGuide_Binding("check"); CoffeyGuide_Binding("compact"); CoffeyGuide_Binding("waypoint")
 ns.db.colorblind = true; ns.db.accentGold = true; ns.Fire("SettingsChanged")
 SlashCmdList.COFFEYGUIDE("settings"); g_search = _G.CoffeyGuideSearch

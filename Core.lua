@@ -92,10 +92,19 @@ local function QuestNameID(q)
   return q, nil
 end
 
+local function FlaggedDone(id)
+  if ns.completed and ns.completed[id] then return true end
+  return (C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted and C_QuestLog.IsQuestFlaggedCompleted(id)) and true or false
+end
+
 function ns.IsQuestDone(q)
   local name, id = QuestNameID(q)
-  -- Fill in IDs learned from the quest log for quests the data only knows by name.
-  id = id or (name and ns.char.questIDs and ns.char.questIDs[name])
+  -- A quest the data names by ID is judged by that ID alone. Hundreds of quests share a name
+  -- (chains such as "A Dark Threat Looms" 161 > 199 > 250, faction copies), and finishing one
+  -- must not tick off the others.
+  if id then return FlaggedDone(id) end
+  -- Quests the data only knows by name: use the ID learned from the quest log when there is one.
+  id = name and ns.char.questIDs and ns.char.questIDs[name]
   if id then
     if ns.completed and ns.completed[id] then return true end
     if C_QuestLog and C_QuestLog.IsQuestFlaggedCompleted and C_QuestLog.IsQuestFlaggedCompleted(id) then return true end
@@ -109,11 +118,72 @@ end
 
 function ns.IsQuestActive(q)
   local name, id = QuestNameID(q)
+  -- When the log reports quest IDs, a quest with an ID matches by ID alone: a later part of a
+  -- same-name chain in the log is a different quest. Names are the fallback for clients
+  -- that report no IDs.
+  if id and next(ns.logIDs) then return ns.logIDs[id] or false end
   return (id and ns.logIDs[id]) or (name and ns.activeQuests[name]) or false
 end
 
 local stateMemo, stateKey = {}, nil
 local ComputeState
+
+-- How many route steps' plans turn in each quest (by ID, or name when there is no ID).
+local turninSteps, turninFor = {}, nil
+local function TurninSteps()
+  if turninFor ~= ns.route then
+    turninSteps, turninFor = {}, ns.route
+    for _, st in ipairs(ns.route or {}) do
+      local seen = {}
+      for _, s in ipairs(ns.PlanFor and ns.PlanFor(st) or {}) do
+        local key = s.act == "turnin" and s.quest and (s.quest[2] or s.quest[1])
+        if key and not seen[key] then seen[key] = true; turninSteps[key] = (turninSteps[key] or 0) + 1 end
+      end
+    end
+  end
+  return turninSteps
+end
+
+-- How many of a step's quests are in the log, done, and in all. With a quest plan, only quests
+-- the plan turns in count: a quest picked up at the end of a zone and handed in at the next
+-- belongs to the next zone, and must not hold the old one open. A quest that several steps
+-- turn in (one the route puts off to a second visit) holds none of them.
+local function StepQuestCounts(step)
+  local inLog, done, total, seen = 0, 0, 0, {}
+  local function count(q)
+    local name, id = QuestNameID(q)
+    local key = id or name
+    if not key or seen[key] then return end
+    seen[key] = true
+    total = total + 1
+    if ns.IsQuestActive(q) then inLog = inLog + 1 elseif ns.IsQuestDone(q) then done = done + 1 end
+  end
+  local plan = ns.PlanFor and ns.PlanFor(step)
+  if plan and #plan > 0 then
+    local owners = TurninSteps()
+    for _, s in ipairs(plan) do
+      if s.act == "turnin" and s.quest and owners[s.quest[2] or s.quest[1]] == 1 then count(s.quest) end
+    end
+  else
+    for _, q in ipairs(step.quests or {}) do count(q) end
+  end
+  return inLog, done, total
+end
+
+-- Levels alone never close a step you are still working on: Forever's extra XP (dungeons,
+-- rested, camping) often takes you past a zone's last level with its quests still open.
+-- Its quests in your log keep it open until you are HOLD_LOG levels past the step, and a step
+-- you've started (with quests still to do) until HOLD_STARTED levels past it. A step you never
+-- started, or whose quests are all done, closes on time. The limits stay small because grey,
+-- elite and abandoned quests often sit in the log for a long time.
+local HOLD_LOG, HOLD_STARTED = 4, 2
+local function StillWorking(step, level)
+  local top = step.reach or step.max
+  if not top then return false end
+  local inLog, done, total = StepQuestCounts(step)
+  if inLog > 0 and level <= top + HOLD_LOG then return true end
+  return done > 0 and done < total and level <= top + HOLD_STARTED
+end
 
 -- Returns nil (not done) or one of "done", "skipped", "outleveled", "behind".
 -- "behind" is a class quest or mount step left 8+ levels behind: it stops holding up the
@@ -141,7 +211,12 @@ ComputeState = function(step)
       if all then return "done" end
     end
   end
-  if step.reach and level >= step.reach then return "done" end
+  local working -- worked out only when a level rule would close the step
+  local function Working()
+    if working == nil then working = StillWorking(step, level) end
+    return working
+  end
+  if step.reach and level >= step.reach and not Working() then return "done" end
   if ns.ZoneStats then
     local zd, zt = ns.ZoneStats(step)
     if zd and zt >= 5 and zd / zt >= 0.9 then return "done" end
@@ -151,7 +226,7 @@ ComputeState = function(step)
     if plan and #plan > 0 and not first then return "done" end
   end
   local keep = step.kind == "class" or step.kind == "mount"
-  if ns.db.autoSkip and step.max and level > step.max + 3 and not keep then
+  if ns.db.autoSkip and step.max and level > step.max + 3 and not keep and not Working() then
     return "outleveled"
   end
   if ns.db.autoSkip and step.max and keep and level > step.max + 8 then return "behind" end
