@@ -637,7 +637,7 @@ ns.AddQuestPlan("a_hillsbrad", {
   { act = "collect",quest = { "Bartolo's Yeti Fur Cloak", 565 }, text = "Collect 10 Yeti Fur in the yeti cave north of Southshore (also wool, thread, Hillman's Cloak)", wp = { 1424, 44.9, 25.1, "Yeti cave" } },
   { act = "kill",   quest = { "Syndicate Assassins", 505 }, text = "Kill 12 Syndicate Footpads and 8 Thieves at the camps on the Alterac border", wp = { 1416, 57.7, 68.0, "Syndicate camp" } },
   { act = "kill",   quest = { "Costly Menace", 564 }, text = "Kill 8 Mountain Lions and 10 Hulking Mountain Lions in the southern Alterac hills", wp = { 1416, 43.2, 76.3, "Southern hills" } },
-  { act = "turnin", quest = { "An Alarming Request", 92432 }, npc = "Image of Archmage Modera", text = "Report to the Image of Archmage Modera outside the City of Dalaran", wp = { 1416, 14.3, 59.6, "Image of Archmage Modera" } },
+  { act = "turnin", quest = { "An Alarming Request", 92432 }, npc = "Image of Archmage Modera", text = "Report to the Image of Archmage Modera at Lordamere Lake, by Dalaran", wp = { 1421, 68.5, 45.2, "Image of Archmage Modera" } },
   { act = "note",   text = "Modera's follow-ups (Heart of Disruption etc.) are City of Dalaran dungeon quests - group content." },
   { act = "go",     text = "Hearth to Southshore", wp = { 1424, 51.2, 58.9, "Southshore" } },
   { act = "turnin", quest = { "Syndicate Assassins", 505 }, npc = "Magistrate Henry Maleb", wp = { 1424, 48.1, 59.1, "Magistrate Henry Maleb" } },

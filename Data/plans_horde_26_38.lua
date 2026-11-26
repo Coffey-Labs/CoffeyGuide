@@ -201,7 +201,7 @@ ns.AddQuestPlan("h_hillsbrad_arathi", {
 ns.AddQuestPlan("h_needles_desolace", {
   { act = "go",      text = "Take the zeppelin to Orgrimmar", wp = { 1454, 75.2, 34.2, "Belgrom Rockmaul" } },
   { act = "accept",  quest = { "The Swarm Grows", 1146 }, npc = "Belgrom Rockmaul", wp = { 1454, 75.2, 34.2, "Belgrom Rockmaul" } },
-  { act = "accept",  quest = { "Alliance Relations", 1431 }, npc = "Craven Drok", wp = { 1454, 45.7, 49.9, "Craven Drok" } },
+  { act = "accept",  quest = { "Alliance Relations", 1431 }, npc = "Craven Drok", text = "Craven Drok walks a loop through this part of Orgrimmar; look around if he isn't at the arrow", wp = { 1454, 48.4, 49.4, "Craven Drok" } },
   { act = "turnin",  quest = { "Alliance Relations", 1431 }, npc = "Keldran", wp = { 1454, 22.6, 52.6, "Keldran" } },
   { act = "accept",  quest = { "Alliance Relations", 1432 }, npc = "Keldran", wp = { 1454, 22.6, 52.6, "Keldran" } },
   -- Thousand Needles: Mirage Raceway
